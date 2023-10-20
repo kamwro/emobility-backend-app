@@ -48,6 +48,10 @@ module.exports = {
         "prefix": ["is", "should", "has", "can", "did", "will"]
       },
       {
+        "selector": "class",
+        "format": ["PascalCase"]
+      },
+      {
         "selector": "typeParameter",
         "format": ["PascalCase"],
         "prefix": ["T"]
