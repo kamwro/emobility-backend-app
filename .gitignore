@@ -37,6 +37,3 @@ lerna-debug.log*
 
 # .env
 .env
-
-# work in progress
-/test
