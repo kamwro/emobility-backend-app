@@ -1,6 +1,29 @@
-import { Entity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, PrimaryColumn, Column } from "typeorm";
 
 @Entity()
 export class User {
-    // work in progress
+    @PrimaryGeneratedColumn()
+    id: number
+
+    @PrimaryColumn()
+    login: string
+
+    @Column()
+    firstName: string
+
+    @Column()
+    lastName: string
+
+    @Column()
+    address: string
+
+    @Column()
+    birthday: string
+
+    @Column()
+    isActive: boolean
+
+    @Column()
+    hashedPassword: string
+
 }
