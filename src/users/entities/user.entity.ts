@@ -1,29 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, PrimaryColumn, Column } from "typeorm";
+import { AbstractEntity } from 'src/utils';
+import { Authentication } from 'src/auth/entities';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 
-@Entity()
-export class User {
-    @PrimaryGeneratedColumn()
-    id: number
+@Entity({ name: 'users' })
+export class User extends AbstractEntity {
+  @Column({ unique: true })
+  public login: string;
 
-    @PrimaryColumn()
-    login: string
+  @Column()
+  public firstName: string;
 
-    @Column()
-    firstName: string
+  @Column()
+  public lastName: string;
 
-    @Column()
-    lastName: string
+  @Column()
+  public address: string;
 
-    @Column()
-    address: string
+  @Column()
+  public birthday: Date;
 
-    @Column()
-    birthday: string
+  @Column({ default: false })
+  public isActive: boolean;
 
-    @Column()
-    isActive: boolean
-
-    @Column()
-    hashedPassword: string
-
+  @OneToOne(() => Authentication, (auth: Authentication) => auth.user, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn()
+  public authentication: Authentication;
 }

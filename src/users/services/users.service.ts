@@ -1,29 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { User } from '../entities';
+import { CreateUserDTO } from '../dtos';
+import { Authentication } from 'src/auth/entities';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectRepository(User)
-        private usersRepository: Repository<User>,
-    ) { }
+  constructor(
+    @InjectRepository(User)
+    private readonly _usersRepository: Repository<User>,
+  ) {}
 
-    findAll(): Promise<User[]> {
-        return this.usersRepository.find();
-    }
+  async findAll(): Promise<User[]> {
+    return this._usersRepository.find();
+  }
 
-    findOne(id: number): Promise<User | null> {
-        return this.usersRepository.findOneBy({ id });
-    }
+  async findOne(id: number): Promise<User | null> {
+    return this._usersRepository.findOneBy({ id });
+  }
 
-    async remove(id: number): Promise<void> {
-        await this.usersRepository.delete(id);
-    }
+  async remove(id: number): Promise<void> {
+    await this._usersRepository.delete(id);
+  }
 
-    register(): any {
-        // work in progress
-    }
-
+  async create(createUserDTO: CreateUserDTO, authentication: Authentication, queryRunner: QueryRunner): Promise<User> {
+    const user = this._usersRepository.create({ ...createUserDTO, authentication });
+    return queryRunner.manager.save(user);
+  }
 }
