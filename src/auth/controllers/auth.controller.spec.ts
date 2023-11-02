@@ -1,18 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
+import { ConfigModule } from '@nestjs/config';
+// import { ModuleMocker, MockFunctionMetadata } from 'jest-mock';
+
+// const moduleMocker = new ModuleMocker(global);
 
 describe('AuthController', () => {
-  let controller: AuthController;
+  let appController!: AuthController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const app: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
+      imports: [ConfigModule],
     }).compile();
 
-    controller = module.get<AuthController>(AuthController);
+    appController = app.get<AuthController>(AuthController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('root', () => {
+    it('should be defined', () => {
+      expect(appController).toBeDefined();
+    });
   });
 });

@@ -6,6 +6,7 @@ import { CreateAuthDTO } from '../dtos';
 import { User } from 'src/users/entities';
 import { UsersService } from 'src/users/services';
 import { CreateUserDTO } from 'src/users/dtos';
+import { TypeORMError } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -16,10 +17,16 @@ export class AuthService {
     private readonly _dataSource: DataSource,
   ) {}
 
-  private async _create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication> {
-    const authentication = this._authRepository.create(createAuthDto);
-
-    return queryRunner.manager.save(authentication);
+  private async _create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication | undefined> {
+    let authentication: Authentication | undefined = undefined;
+    try {
+      authentication = this._authRepository.create(createAuthDto);
+      return queryRunner.manager.save(authentication);
+    } catch (e) {
+      throw new TypeORMError('something went wrong with provided dto');
+    } finally {
+      return authentication;
+    }
   }
 
   async registerUser(createUserDto: CreateUserDTO): Promise<User | undefined> {

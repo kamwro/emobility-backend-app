@@ -1,12 +1,13 @@
 ## E-mobility App
 
-E-mobility backend app created with [NestJS](https://nestjs.com/) and [Postgres](https://www.postgresql.org.pl/).
+E-mobility backend app created with [NestJS](https://nestjs.com/) and [Postgres](https://www.postgresql.org.pl/), [Docker](https://www.docker.com/)ized.
 
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org/en), LTS or Current version,
 - [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/),
-- [Postgres](https://www.postgresql.org/download/windows/),
+- [Postgres](https://www.postgresql.org/download/windows/) if you want to manage your database,
+- Git,
 - have set up an email address that will enable you sending emails through SMTP server
 
 ## Cloning The Repository
@@ -33,9 +34,12 @@ POSTGRES_PORT=5432
 
 # API 
 NEST_API_PORT=3000
+
+# Dbeaver - optional 
+POSTGRES_DBEAVER_PORT=5433
 ```
 
-You should also change the create-db.sql file accordingly.
+You should also change the create-db.sql file accordingly if you changed database name.
 
 ## Running The App
 
@@ -55,7 +59,12 @@ $ docker-compose up --build
 
 ## Testing The App
 
-**WORK IN PROGRESS**
+Unit tests included, testing mainly services.
+Run the following command in the nest container:
+
+```bash
+$ npm run test
+```
 
 ## Design Patterns And Clean Code
 
