@@ -1,0 +1,1 @@
+export { AuthenticationEntity } from "./auth.entity";
