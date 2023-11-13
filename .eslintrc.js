@@ -6,10 +6,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin', 'prettier', 'security'],
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
   root: true,
   env: {
     node: true,
@@ -20,42 +17,42 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-use-before-define": "error",
-    "@typescript-eslint/no-namespace": "warn",
-    "security/detect-object-injection": "warn",
-    "no-var": "error",
-    "no-console": "warn",
-    "camelcase": "off",
-    "curly": "warn",
-    "eqeqeq": "warn",
-    "no-throw-literal": "warn",
-    "semi": "off",
-    "no-empty": "warn",
-    "no-unused-expressions": ["error", { "allowTernary": true }],
-    "no-use-before-define": "off",
-    "@typescript-eslint/naming-convention": [
-      "error",
-      { "selector": "variableLike", "format": ["camelCase"] },
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-use-before-define': 'error',
+    '@typescript-eslint/no-namespace': 'warn',
+    'security/detect-object-injection': 'warn',
+    'no-var': 'error',
+    'no-console': 'warn',
+    camelcase: 'off',
+    curly: 'warn',
+    eqeqeq: 'warn',
+    'no-throw-literal': 'warn',
+    semi: 'all',
+    'no-empty': 'warn',
+    'no-unused-expressions': ['error', { allowTernary: true }],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      { selector: 'variableLike', format: ['camelCase'] },
       {
-        "selector": "variable",
-        "format": ["camelCase", "UPPER_CASE"]
+        selector: 'variable',
+        format: ['camelCase', 'UPPER_CASE'],
       },
       {
-        "selector": "variable",
-        "types": ["boolean"],
-        "format": ["PascalCase"],
-        "prefix": ["is", "should", "has", "can", "did", "will"]
+        selector: 'variable',
+        types: ['boolean'],
+        format: ['PascalCase'],
+        prefix: ['is', 'should', 'has', 'can', 'did', 'will'],
       },
       {
-        "selector": "class",
-        "format": ["PascalCase"]
+        selector: 'class',
+        format: ['PascalCase'],
       },
       {
-        "selector": "typeParameter",
-        "format": ["PascalCase"],
-        "prefix": ["T"]
-      }
-    ]
+        selector: 'typeParameter',
+        format: ['PascalCase'],
+        prefix: ['T'],
+      },
+    ],
   },
 };

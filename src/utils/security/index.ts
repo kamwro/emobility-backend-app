@@ -1,0 +1,1 @@
+export { HashProvider } from "./password-hash";
