@@ -1,30 +1,30 @@
 import { Controller, Get, Patch, Delete } from '@nestjs/common';
-import { MeService } from '../services/me.service';
+import { MyAccountService } from '../services/me.service';
 import { ApiTags } from '@nestjs/swagger';
 
 
 @Controller('me')
 @ApiTags("My Account")
-export class MeController {
-    constructor(private readonly meService: MeService) { }
+export class MyAccountController {
+    constructor(private readonly myAccountService: MyAccountService) { }
 
     @Get('info')
     getMyInfo(): any {
-        return this.meService.getMyInfo()
+        return this.myAccountService.getMyInfo()
     }
 
     @Patch('change-info')
     changeMyInfo(): any {
-        return this.meService.changeMyInfo()
+        return this.myAccountService.changeMyInfo()
     }
 
     @Patch('change-password')
     changeMyPassword(): any {
-        return this.meService.changeMyPassword()
+        return this.myAccountService.changeMyPassword()
     }
 
     @Delete('delete')
     deleteMyAccount(): any {
-        return this.meService.deleteMyAccount()
+        return this.myAccountService.deleteMyAccount()
     }
 }

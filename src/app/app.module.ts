@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './controllers';
-import { MeModule } from '../me';
+import { MyAccountModule } from '../my-account';
 import { UsersModule } from '../users';
 import { AuthModule } from '../auth';
 import { DbModule } from '../db';
@@ -9,13 +9,13 @@ import { validate } from '../../env.validation';
 
 @Module({
   imports: [
-    MeModule,
+    MyAccountModule,
     AuthModule,
     UsersModule,
     DbModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      validate
+      validate,
     }),
   ],
   controllers: [AppController],
