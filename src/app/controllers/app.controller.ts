@@ -11,8 +11,8 @@ export class AppController {
   @ApiExcludeEndpoint()
   @Get()
   async redirectToDocs(@Res() res: Response): Promise<void> {
-    let port = this._configService.get('NEST_API_PORT') as number;
-    let url = `http://localhost:${port}/api#/` as string;
+    const port = this._configService.get('NEST_API_PORT');
+    const url = `http://localhost:${port}/api#/`;
     return res.redirect(301, url);
   }
 }

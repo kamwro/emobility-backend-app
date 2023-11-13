@@ -1,4 +1,4 @@
-import { Injectable, UnprocessableEntityException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { QueryRunner, Repository } from 'typeorm';
 import { User } from '../entities';
@@ -18,17 +18,12 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<User | null> {
-    if (typeof id !== 'number') {
-      throw new UnprocessableEntityException('id must be of type number');
-    }
     return this._usersRepository.findOneBy({ id });
   }
 
   async remove(id: number, queryRunner: QueryRunner): Promise<void> {
-    const user = await this.findOne((id = id));
-    if (typeof id !== 'number') {
-      throw new UnprocessableEntityException('id must be of type number');
-    } else if (user !== null) {
+    const user = this._usersRepository.findOneBy({id});
+    if (user !== null) {
       this._usersRepository.delete(id);
       queryRunner.manager.remove(user);
     } else {

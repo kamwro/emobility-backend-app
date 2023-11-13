@@ -1,5 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { passwordRegex } from '../../utils/constants';
 
 export class CreateAuthDTO {
   @IsNotEmpty({ message: 'login is required' })
@@ -10,7 +11,7 @@ export class CreateAuthDTO {
   @IsNotEmpty({ message: 'password is required' })
   @IsString()
   @Length(4, 20)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+  @Matches(passwordRegex, {
     message: 'password is too weak',
   })
   @ApiProperty()

@@ -15,7 +15,7 @@ import { AuthSubscriber } from '../auth/subscribers';
         port: configService.get('POSTGRES_PORT'),
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
-        database: configService.get('POSTGRES_DB_NAME'),
+        database: configService.get('POSTGRES_NAME'),
         entities: [User, Authentication],
         subscribers: [AuthSubscriber],
         synchronize: true,

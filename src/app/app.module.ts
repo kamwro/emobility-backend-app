@@ -5,7 +5,7 @@ import { UsersModule } from '../users';
 import { AuthModule } from '../auth';
 import { DbModule } from '../db';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
+import { validate } from '../../env.validation';
 
 @Module({
   imports: [
@@ -15,15 +15,7 @@ import * as Joi from 'joi';
     DbModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({
-        NEST_API_PORT: Joi.number().default('3000'),
-        POSTGRES_HOST: Joi.string().required(),
-        POSTGRES_PORT: Joi.number().default('5432'),
-        POSTGRES_DBEAVER_PORT: Joi.number().default('5433'),
-        POSTGRES_DB_NAME: Joi.string().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASSWORD: Joi.string().required(),
-      }),
+      validate
     }),
   ],
   controllers: [AppController],

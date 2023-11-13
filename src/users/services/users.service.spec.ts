@@ -88,7 +88,7 @@ describe('UsersService', () => {
         const authentication = await authService.create(createUserDTOMock, queryRunner);
         service.create(createUserDTOMock, authentication, queryRunner);
         const result = service.findOne(1);
-        expect(result === undefined || result === null).toEqual(false);
+        expect(result).not.toBeFalsy();
       });
     });
 

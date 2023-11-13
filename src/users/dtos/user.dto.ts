@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthDTO } from '../../auth/dtos';
-import { AbstractDTO } from '../../utils';
 
-export class UserDTO extends AbstractDTO {
+export class UserDTO {
   @ApiProperty()
   readonly firstName: string;
 
