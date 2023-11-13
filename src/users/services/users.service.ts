@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm/dist';
 import { QueryRunner, Repository } from 'typeorm';
 import { User } from '../entities';
 import { CreateUserDTO } from '../dtos';
-import { Authentication } from 'src/auth/entities';
+import { Authentication } from '../../auth/entities';
 import { TypeORMError } from 'typeorm';
 
 @Injectable()
@@ -24,12 +24,13 @@ export class UsersService {
     return this._usersRepository.findOneBy({ id });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, queryRunner: QueryRunner): Promise<void> {
     const user = await this.findOne((id = id));
     if (typeof id !== 'number') {
       throw new UnprocessableEntityException('id must be of type number');
     } else if (user !== null) {
-      await this._usersRepository.delete(id);
+      this._usersRepository.delete(id);
+      queryRunner.manager.remove(user);
     } else {
       throw new NotFoundException('there is no user with that id');
     }
@@ -41,7 +42,7 @@ export class UsersService {
       user = this._usersRepository.create({ ...createUserDTO, authentication });
       return queryRunner.manager.save(user);
     } catch (e) {
-      throw new TypeORMError('something went wrong with provided dto or authentication entity');
+      throw new TypeORMError('something went wrong');
     } finally {
       return user;
     }

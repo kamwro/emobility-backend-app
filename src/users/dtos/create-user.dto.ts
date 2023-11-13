@@ -1,5 +1,5 @@
 import { IsString, IsDateString, IsNotEmpty } from 'class-validator';
-import { CreateAuthDTO } from 'src/auth/dtos';
+import { CreateAuthDTO } from '../../auth/dtos';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDTO extends CreateAuthDTO {

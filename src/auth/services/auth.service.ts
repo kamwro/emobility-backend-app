@@ -3,10 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, QueryRunner } from 'typeorm';
 import { Authentication } from '../entities';
 import { CreateAuthDTO } from '../dtos';
-import { User } from 'src/users/entities';
-import { UsersService } from 'src/users/services';
-import { CreateUserDTO } from 'src/users/dtos';
-import { TypeORMError } from 'typeorm';
+import { User } from '../../users/entities';
+import { UsersService } from '../../users/services';
+import { CreateUserDTO } from '../../users/dtos';
 
 @Injectable()
 export class AuthService {
@@ -17,16 +16,9 @@ export class AuthService {
     private readonly _dataSource: DataSource,
   ) {}
 
-  private async _create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication | undefined> {
-    let authentication: Authentication | undefined = undefined;
-    try {
-      authentication = this._authRepository.create(createAuthDto);
-      return queryRunner.manager.save(authentication);
-    } catch (e) {
-      throw new TypeORMError('something went wrong with provided dto');
-    } finally {
-      return authentication;
-    }
+  async create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication> {
+    const authentication = this._authRepository.create(createAuthDto);
+    return queryRunner.manager.save(authentication);
   }
 
   async registerUser(createUserDto: CreateUserDTO): Promise<User | undefined> {
@@ -37,7 +29,7 @@ export class AuthService {
     await queryRunner.startTransaction();
 
     try {
-      const authentication = await this._create(createUserDto, queryRunner);
+      const authentication = await this.create(createUserDto, queryRunner);
       user = await this._usersService.create(createUserDto, authentication, queryRunner);
       await queryRunner.commitTransaction();
     } catch (e) {

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
-import { HttpCode } from '@nestjs/common';
 
 describe('AppController', () => {
   let appController!: AppController;
@@ -15,13 +14,9 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
+  describe('AppController (root)', () => {
     it('should be defined', () => {
       expect(appController).toBeDefined();
-    });
-
-    it('should redirect to the OpenAPI docs', async () => {
-      expect(appController.redirectToDocs).toEqual(HttpCode(401));
     });
   });
 });

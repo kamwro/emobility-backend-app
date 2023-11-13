@@ -1,5 +1,5 @@
-import { AbstractEntity } from 'src/utils';
-import { Authentication } from 'src/auth/entities';
+import { AbstractEntity } from '../../utils';
+import { Authentication } from '../../auth/entities';
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 
 @Entity({ name: 'users' })

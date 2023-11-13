@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './controllers';
-import { MeModule } from 'src/me';
-import { UsersModule } from 'src/users';
-import { AuthModule } from 'src/auth';
-import { DbModule } from 'src/db';
+import { MeModule } from '../me';
+import { UsersModule } from '../users';
+import { AuthModule } from '../auth';
+import { DbModule } from '../db';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 

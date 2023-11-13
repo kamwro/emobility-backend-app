@@ -1,6 +1,6 @@
 import { InsertEvent, UpdateEvent, EntitySubscriberInterface, EventSubscriber } from 'typeorm';
 import { Authentication } from '../entities';
-import { HashProvider } from 'src/utils';
+import { HashProvider } from '../../utils';
 
 @EventSubscriber()
 export class AuthSubscriber implements EntitySubscriberInterface<Authentication> {
