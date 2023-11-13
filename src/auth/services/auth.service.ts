@@ -6,6 +6,7 @@ import { CreateAuthDTO } from '../dtos';
 import { User } from '../../users/entities';
 import { UsersService } from '../../users/services';
 import { CreateUserDTO } from '../../users/dtos';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,10 @@ export class AuthService {
   async create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication> {
     const authentication = this._authRepository.create(createAuthDto);
     return queryRunner.manager.save(authentication);
+  }
+
+  static async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
+    return hash(password, saltOrRounds);
   }
 
   async registerUser(createUserDto: CreateUserDTO): Promise<User | undefined> {

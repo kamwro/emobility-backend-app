@@ -87,6 +87,11 @@ describe('AuthService', () => {
         expect(service.create(createUserDTOMock, queryRunner)).toBeInstanceOf(Promise<Authentication>);
       });
     });
+    describe('getHash', () => {
+      it('should return a hashed password', async () => {
+        expect(AuthService.getHash('test')).not.toEqual('test');
+      });
+    });
     describe('registerUser', () => {
       it('should register an user', () => {
         service.registerUser(createUserDTOMock);
