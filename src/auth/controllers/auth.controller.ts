@@ -8,7 +8,10 @@ import { CreateUserDTO } from '../../users/dtos/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly _authService: AuthService) {}
+  readonly #authService: AuthService;
+  constructor(authService: AuthService) {
+    this.#authService = authService;
+  }
 
   @ApiOperation({ summary: 'Register an account.' })
   @ApiTags('Account Creation')
@@ -17,7 +20,7 @@ export class AuthController {
   @ApiOkResponse({ type: UserDTO, description: 'Successfully created an account' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error - email is probably already taken' })
   async register(@Body() body: CreateUserDTO): Promise<User | undefined> {
-    return await this._authService.registerUser(body);
+    return await this.#authService.registerUser(body);
   }
 
   @ApiOperation({ summary: 'Login to receive an access token.' })
@@ -25,13 +28,13 @@ export class AuthController {
   @Post('log-in')
   async logIn(@Body() body: CreateAuthDTO): Promise<any> {
     body;
-    await this._authService.logIn();
+    await this.#authService.logIn();
   }
 
   @ApiOperation({ summary: 'Logout from the current session.' })
   @ApiTags('Authentication')
   @Post('log-out')
   async logOut(): Promise<any> {
-    await this._authService.logOut();
+    await this.#authService.logOut();
   }
 }

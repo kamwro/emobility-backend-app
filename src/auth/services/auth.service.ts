@@ -10,15 +10,22 @@ import { hash } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  readonly #authRepository: Repository<Authentication>;
+  readonly #usersService: UsersService;
+  readonly #dataSource: DataSource;
   constructor(
     @InjectRepository(Authentication)
-    private readonly _authRepository: Repository<Authentication>,
-    private readonly _usersService: UsersService,
-    private readonly _dataSource: DataSource,
-  ) {}
+    authRepository: Repository<Authentication>,
+    usersService: UsersService,
+    dataSource: DataSource,
+  ) {
+    this.#authRepository = authRepository;
+    this.#usersService = usersService;
+    this.#dataSource = dataSource;
+  }
 
   async create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication> {
-    const authentication = this._authRepository.create(createAuthDto);
+    const authentication = this.#authRepository.create(createAuthDto);
     return queryRunner.manager.save(authentication);
   }
 
@@ -27,7 +34,7 @@ export class AuthService {
   }
 
   async registerUser(createUserDto: CreateUserDTO): Promise<User | undefined> {
-    const queryRunner = this._dataSource.createQueryRunner();
+    const queryRunner = this.#dataSource.createQueryRunner();
 
     let user: User | undefined = undefined;
     await queryRunner.connect();
@@ -35,7 +42,7 @@ export class AuthService {
 
     try {
       const authentication = await this.create(createUserDto, queryRunner);
-      user = await this._usersService.create(createUserDto, authentication, queryRunner);
+      user = await this.#usersService.create(createUserDto, authentication, queryRunner);
       await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();

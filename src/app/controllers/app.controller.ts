@@ -6,12 +6,15 @@ import { Response } from 'express';
 @Controller()
 @ApiTags('Home')
 export class AppController {
-  constructor(private readonly _configService: ConfigService) {}
+  readonly #configService: ConfigService;
+  constructor(configService: ConfigService) {
+    this.#configService = configService;
+  }
 
   @ApiExcludeEndpoint()
   @Get()
   async redirectToDocs(@Res() res: Response): Promise<void> {
-    const port = this._configService.get('NEST_API_PORT');
+    const port = this.#configService.get('NEST_API_PORT');
     const url = `http://localhost:${port}/api#/`;
     return res.redirect(301, url);
   }

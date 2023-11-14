@@ -8,23 +8,26 @@ import { TypeORMError } from 'typeorm';
 
 @Injectable()
 export class UsersService {
+  readonly #usersRepository: Repository<User>
   constructor(
     @InjectRepository(User)
-    private readonly _usersRepository: Repository<User>,
-  ) {}
+    usersRepository: Repository<User>
+  ) {  
+    this.#usersRepository = usersRepository
+  }
 
   async findAll(): Promise<User[]> {
-    return this._usersRepository.find();
+    return this.#usersRepository.find();
   }
 
   async findOne(id: number): Promise<User | null> {
-    return this._usersRepository.findOneBy({ id });
+    return this.#usersRepository.findOneBy({ id });
   }
 
   async remove(id: number, queryRunner: QueryRunner): Promise<void> {
-    const user = this._usersRepository.findOneBy({ id });
+    const user = this.#usersRepository.findOneBy({ id });
     if (user !== null) {
-      this._usersRepository.delete(id);
+      this.#usersRepository.delete(id);
       queryRunner.manager.remove(user);
     } else {
       throw new NotFoundException('there is no user with that id');
@@ -34,7 +37,7 @@ export class UsersService {
   async create(createUserDTO: CreateUserDTO, authentication: Authentication | undefined, queryRunner: QueryRunner): Promise<User | undefined> {
     let user: User | undefined = undefined;
     try {
-      user = this._usersRepository.create({ ...createUserDTO, authentication });
+      user = this.#usersRepository.create({ ...createUserDTO, authentication });
       return queryRunner.manager.save(user);
     } catch (e) {
       throw new TypeORMError('something went wrong');
