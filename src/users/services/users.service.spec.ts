@@ -85,8 +85,8 @@ describe('UsersService', () => {
   describe('Methods', () => {
     describe('create + findOne', () => {
       it('should create a new user and find it', async () => {
-        const authentication = await authService.create(createUserDTOMock, queryRunner);
-        service.create(createUserDTOMock, authentication, queryRunner);
+        const authentication = await authService.create(createUserDTOMock);
+        service.create(createUserDTOMock, authentication);
         const result = service.findOne(1);
         expect(result).not.toBeFalsy();
       });
@@ -94,10 +94,10 @@ describe('UsersService', () => {
 
     describe('create', () => {
       it('should not create a new user with the same login, instead throw TypeORMError with the custom message', async () => {
-        const authentication = await authService.create(createUserDTOMock, queryRunner);
-        service.create(createUserDTOMock, authentication, queryRunner);
+        const authentication = await authService.create(createUserDTOMock);
+        service.create(createUserDTOMock, authentication);
         try {
-          service.create(createUserDTOMock, authentication, queryRunner);
+          service.create(createUserDTOMock, authentication);
         } catch (e) {
           expect(e).toBeInstanceOf(TypeORMError);
           expect(e).toHaveProperty('something went wrong');
@@ -121,15 +121,15 @@ describe('UsersService', () => {
 
     describe('remove', () => {
       it('should remove an existing user', async () => {
-        const authentication = await authService.create(createUserDTOMock, queryRunner);
-        service.create(createUserDTOMock, authentication, queryRunner);
-        service.remove(1, queryRunner);
+        const authentication = await authService.create(createUserDTOMock);
+        service.create(createUserDTOMock, authentication);
+        service.remove(1);
         const result = service.findOne(1);
         expect(result).toBeInstanceOf(Promise<null>);
       });
       it('should throw a NotFoundException with a custom message when trying to delete non-existing user', () => {
         try {
-          service.remove(1, queryRunner);
+          service.remove(1);
         } catch (e) {
           expect(e).toBeInstanceOf(NotFoundException);
           expect(e).toHaveProperty('there is no user with that id');

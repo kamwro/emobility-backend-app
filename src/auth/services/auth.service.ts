@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, QueryRunner } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Authentication } from '../entities/auth.entity';
 import { CreateAuthDTO } from '../dtos/create-auth.dto';
 import { User } from '../../users/entities/user.entity';
@@ -24,9 +24,9 @@ export class AuthService {
     this.#dataSource = dataSource;
   }
 
-  async create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication> {
-    const authentication = this.#authRepository.create(createAuthDto);
-    return await queryRunner.manager.save(authentication);
+  async create(createAuthDto: CreateAuthDTO): Promise<Authentication> {
+    let auth = this.#authRepository.create(createAuthDto);
+    return await this.#authRepository.save(auth);
   }
 
   static async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
@@ -41,8 +41,8 @@ export class AuthService {
     await queryRunner.startTransaction();
 
     try {
-      const authentication = await this.create(createUserDto, queryRunner);
-      user = await this.#usersService.create(createUserDto, authentication, queryRunner);
+      const authentication = await this.create(createUserDto);
+      user = await this.#usersService.create(createUserDto, authentication);
       await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();

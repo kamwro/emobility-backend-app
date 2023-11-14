@@ -82,10 +82,10 @@ describe('AuthService', () => {
   describe('Methods', () => {
     describe('create', () => {
       it('should create a new authentication with auth creation dto', () => {
-        expect(service.create(createAuthDTOMock, queryRunner)).toBeInstanceOf(Promise<Authentication>);
+        expect(service.create(createAuthDTOMock)).toBeInstanceOf(Promise<Authentication>);
       });
       it('should create a new authentication with user creation dto', () => {
-        expect(service.create(createUserDTOMock, queryRunner)).toBeInstanceOf(Promise<Authentication>);
+        expect(service.create(createUserDTOMock)).toBeInstanceOf(Promise<Authentication>);
       });
     });
     describe('getHash', () => {
