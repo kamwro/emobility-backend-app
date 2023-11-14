@@ -26,7 +26,7 @@ export class AuthService {
 
   async create(createAuthDto: CreateAuthDTO, queryRunner: QueryRunner): Promise<Authentication> {
     const authentication = this.#authRepository.create(createAuthDto);
-    return queryRunner.manager.save(authentication);
+    return await queryRunner.manager.save(authentication);
   }
 
   static async getHash(password: string, saltOrRounds: number = 10): Promise<string> {

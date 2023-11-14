@@ -17,11 +17,11 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.#usersRepository.find();
+    return await this.#usersRepository.find();
   }
 
   async findOne(id: number): Promise<User | null> {
-    return this.#usersRepository.findOneBy({ id });
+    return await this.#usersRepository.findOneBy({ id });
   }
 
   async remove(id: number, queryRunner: QueryRunner): Promise<void> {
