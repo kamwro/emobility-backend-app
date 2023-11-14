@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { AuthService } from '../../auth/services';
-import { User } from '../entities';
+import { AuthService } from '../../auth/services/auth.service';
+import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, QueryRunner, Repository, TypeORMError } from 'typeorm';
-import { createUserDTOMock } from '../../utils/mocks/dtos';
-import { dataSourceMockFactory } from '../../utils/mocks/data-source-mock-factory';
-import { Authentication } from '../../auth/entities';
+import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
+import { dataSourceMockFactory } from '../../utils/mocks/factories/data-source-mock-factory';
+import { Authentication } from '../../auth/entities/auth.entity';
 import { NotFoundException } from '@nestjs/common/exceptions';
 
 describe('UsersService', () => {

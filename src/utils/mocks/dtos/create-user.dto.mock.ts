@@ -1,4 +1,4 @@
-import { createAuthDTOMock } from '../create-auth.dto.mock';
+import { createAuthDTOMock } from './create-auth.dto.mock';
 
 export const createUserDTOMock = {
   firstName: 'test',

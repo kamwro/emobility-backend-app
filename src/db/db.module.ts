@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from '../users/entities';
-import { Authentication } from '../auth/entities';
-import { AuthSubscriber } from '../auth/subscribers';
+import { User } from '../users/entities/user.entity';
+import { Authentication } from '../auth/entities/auth.entity';
+import { AuthSubscriber } from '../auth/subscribers/auth-subscriber';
 
 @Module({
   imports: [

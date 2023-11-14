@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { MockType } from '../mock-type';
+import { MockType } from '../types/mock-type';
 
 export const dataSourceMockFactory: () => MockType<DataSource> = jest.fn(() => ({
   createQueryRunner: jest.fn().mockImplementation(() => ({

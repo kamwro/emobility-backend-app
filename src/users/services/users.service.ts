@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { QueryRunner, Repository } from 'typeorm';
-import { User } from '../entities';
-import { CreateUserDTO } from '../dtos';
-import { Authentication } from '../../auth/entities';
+import { User } from '../entities/user.entity';
+import { CreateUserDTO } from '../dtos/create-user.dto';
+import { Authentication } from '../../auth/entities/auth.entity';
 import { TypeORMError } from 'typeorm';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class UsersService {
   }
 
   async remove(id: number, queryRunner: QueryRunner): Promise<void> {
-    const user = this._usersRepository.findOneBy({id});
+    const user = this._usersRepository.findOneBy({ id });
     if (user !== null) {
       this._usersRepository.delete(id);
       queryRunner.manager.remove(user);

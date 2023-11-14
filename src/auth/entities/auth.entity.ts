@@ -1,6 +1,6 @@
-import { AbstractEntity } from '../../utils';
+import { AbstractEntity } from '../../utils/abstracts/abstract-entity';
 import { Entity, Column, OneToOne } from 'typeorm';
-import { User } from '../../users/entities';
+import { User } from '../../users/entities/user.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'authentications' })
