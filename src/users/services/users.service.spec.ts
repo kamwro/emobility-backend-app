@@ -1,22 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { AuthService } from '../../auth/services/auth.service';
 import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, QueryRunner, Repository, TypeORMError } from 'typeorm';
+import { Repository, TypeORMError } from 'typeorm';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
-import { dataSourceMockFactory } from '../../utils/mocks/factories/data-source-mock-factory';
-import { Authentication } from '../../auth/entities/auth.entity';
 import { NotFoundException } from '@nestjs/common/exceptions';
 
 describe('UsersService', () => {
   let service: UsersService;
-  let authService: AuthService;
   let userRepository: Repository<User>;
   const userRepositoryToken = getRepositoryToken(User);
-  const authRepositoryToken = getRepositoryToken(Authentication);
-  let dataSource: DataSource;
-  let queryRunner: QueryRunner;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,33 +24,11 @@ describe('UsersService', () => {
             delete: jest.fn(),
           },
         },
-        AuthService,
-        {
-          provide: authRepositoryToken,
-          useValue: {
-            create: jest.fn(),
-          },
-        },
-        DataSource,
-        {
-          provide: DataSource,
-          useFactory: dataSourceMockFactory,
-        },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    authService = module.get<AuthService>(AuthService);
     userRepository = module.get<Repository<User>>(userRepositoryToken);
-    dataSource = module.get(DataSource);
-    queryRunner = dataSource.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-  });
-
-  afterEach(async () => {
-    await queryRunner.release();
   });
 
   it('should be defined', () => {
@@ -68,25 +39,12 @@ describe('UsersService', () => {
     it('user repository should be defined', () => {
       expect(userRepository).toBeDefined();
     });
-
-    it('authentication service should be defined', () => {
-      expect(authService).toBeDefined();
-    });
-
-    it('data source mock should be defined', () => {
-      expect(dataSource).toBeDefined();
-    });
-
-    it('query runner should be defined', () => {
-      expect(queryRunner).toBeDefined();
-    });
   });
 
   describe('Methods', () => {
     describe('create + findOne', () => {
       it('should create a new user and find it', async () => {
-        const authentication = await authService.create(createUserDTOMock);
-        service.create(createUserDTOMock, authentication);
+        service.create(createUserDTOMock);
         const result = service.findOne(1);
         expect(result).not.toBeFalsy();
       });
@@ -94,10 +52,9 @@ describe('UsersService', () => {
 
     describe('create', () => {
       it('should not create a new user with the same login, instead throw TypeORMError with the custom message', async () => {
-        const authentication = await authService.create(createUserDTOMock);
-        service.create(createUserDTOMock, authentication);
+        service.create(createUserDTOMock);
         try {
-          service.create(createUserDTOMock, authentication);
+          service.create(createUserDTOMock);
         } catch (e) {
           expect(e).toBeInstanceOf(TypeORMError);
           expect(e).toHaveProperty('something went wrong');
@@ -121,8 +78,7 @@ describe('UsersService', () => {
 
     describe('remove', () => {
       it('should remove an existing user', async () => {
-        const authentication = await authService.create(createUserDTOMock);
-        service.create(createUserDTOMock, authentication);
+        service.create(createUserDTOMock);
         service.remove(1);
         const result = service.findOne(1);
         expect(result).toBeInstanceOf(Promise<null>);

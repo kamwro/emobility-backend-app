@@ -1,7 +1,6 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiOkResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
-import { CreateAuthDTO } from '../dtos/create-auth.dto';
 import { User } from '../../users/entities/user.entity';
 import { UserDTO } from '../../users/dtos/user.dto';
 import { CreateUserDTO } from '../../users/dtos/create-user.dto';
@@ -26,8 +25,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login to receive an access token.' })
   @ApiTags('Authentication')
   @Post('log-in')
-  async logIn(@Body() body: CreateAuthDTO): Promise<any> {
-    body;
+  async logIn(): Promise<any> {
     await this.#authService.logIn();
   }
 

@@ -1,11 +1,15 @@
 import { AbstractEntity } from '../../utils/abstracts/abstract-entity';
-import { Authentication } from '../../auth/entities/auth.entity';
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity {
   @Column({ unique: true })
   public login: string;
+
+  @Column()
+  @Exclude()
+  public password: string;
 
   @Column()
   public firstName: string;
@@ -21,8 +25,4 @@ export class User extends AbstractEntity {
 
   @Column({ default: false })
   public isActive: boolean;
-
-  @OneToOne(() => Authentication, (auth: Authentication) => auth.user, { nullable: false, onDelete: 'CASCADE' })
-  @JoinColumn()
-  public authentication: Authentication;
 }

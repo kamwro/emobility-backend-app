@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDTO } from '../dtos/create-user.dto';
-import { Authentication } from '../../auth/entities/auth.entity';
 import { TypeORMError } from 'typeorm';
 
 @Injectable()
@@ -33,15 +32,15 @@ export class UsersService {
     }
   }
 
-  async create(createUserDTO: CreateUserDTO, authentication: Authentication | undefined): Promise<User | undefined> {
+  async create(createUserDTO: CreateUserDTO): Promise<User | undefined> {
     let user: User | undefined = undefined;
     try {
-      user = this.#usersRepository.create({ ...createUserDTO, authentication });
+      user = await this.#usersRepository.create({ ...createUserDTO });
       return await this.#usersRepository.save(user);
     } catch (e) {
       throw new TypeORMError('something went wrong');
     } finally {
-      return user;
+      return await user;
     }
   }
 }
