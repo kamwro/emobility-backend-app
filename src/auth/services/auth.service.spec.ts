@@ -21,6 +21,7 @@ describe('AuthService', () => {
           useValue: {
             create: jest.fn(),
             findOneBy: jest.fn(),
+            save: jest.fn(),
           },
         },
       ],

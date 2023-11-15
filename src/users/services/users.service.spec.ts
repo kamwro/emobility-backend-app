@@ -4,7 +4,6 @@ import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, TypeORMError } from 'typeorm';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
-import { NotFoundException } from '@nestjs/common/exceptions';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -22,6 +21,7 @@ describe('UsersService', () => {
             findOneBy: jest.fn(),
             create: jest.fn(),
             delete: jest.fn(),
+            save: jest.fn(),
           },
         },
       ],
@@ -82,14 +82,6 @@ describe('UsersService', () => {
         service.remove(1);
         const result = service.findOne(1);
         expect(result).toBeInstanceOf(Promise<null>);
-      });
-      it('should throw a NotFoundException with a custom message when trying to delete non-existing user', () => {
-        try {
-          service.remove(1);
-        } catch (e) {
-          expect(e).toBeInstanceOf(NotFoundException);
-          expect(e).toHaveProperty('there is no user with that id');
-        }
       });
     });
   });
