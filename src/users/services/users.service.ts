@@ -35,12 +35,12 @@ export class UsersService {
   async create(createUserDTO: CreateUserDTO): Promise<User | undefined> {
     let user: User | undefined = undefined;
     try {
-      user = await this.#usersRepository.create({ ...createUserDTO });
+      user = this.#usersRepository.create({ ...createUserDTO });
       return await this.#usersRepository.save(user);
     } catch (e) {
       throw new TypeORMError('something went wrong');
     } finally {
-      return await user;
+      return user;
     }
   }
 }
