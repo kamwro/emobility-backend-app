@@ -31,19 +31,23 @@ export class AuthService {
     return user;
   }
 
-  async signIn(userSignInDTO: UserSignInDTO): Promise<{ access_token: string }> {
-    let isMatch: boolean;
-    const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
+  async isMatch(userSignInDTO: UserSignInDTO, user: User | null): Promise<boolean> {
     if (user?.password) {
-      isMatch = await compare(userSignInDTO.password, user.password);
+      return await compare(userSignInDTO.password, user.password);
     } else throw new NotFoundException('user not found');
-    if (!isMatch) {
+    // TODO: unit tests
+  }
+
+  async signIn(userSignInDTO: UserSignInDTO): Promise<{ access_token: string }> {
+    const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
+    if (!this.isMatch(userSignInDTO, user)) {
       throw new UnauthorizedException('invalid password');
     }
-    const payload = { sub: user.id, username: user.login };
+    const payload = { sub: user?.id, username: user?.login };
     return {
       access_token: await this.#jwtService.signAsync(payload),
     };
+    // TODO: unit tests
   }
   signOut(): any {
     // work in progress
