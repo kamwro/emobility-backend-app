@@ -37,6 +37,30 @@ class EnvironmentVariables {
   @IsNumber()
   @IsNotEmpty()
   TOKEN_EXPIRES_IN_MIN: number = 5;
+
+  @IsNumber()
+  @IsNotEmpty()
+  THROTTLE_TTL_SHORT: number = 1000;
+
+  @IsNumber()
+  @IsNotEmpty()
+  THROTTLE_LIMIT_SHORT: number = 3;
+
+  @IsNumber()
+  @IsNotEmpty()
+  THROTTLE_TTL_MEDIUM: number = 10000;
+
+  @IsNumber()
+  @IsNotEmpty()
+  THROTTLE_LIMIT_MEDIUM: number = 20;
+
+  @IsNumber()
+  @IsNotEmpty()
+  THROTTLE_TTL_LONG: number = 60000;
+
+  @IsNumber()
+  @IsNotEmpty()
+  THROTTLE_LIMIT_LONG: number = 100;
 }
 
 export function validate(config: Record<string, unknown>) {

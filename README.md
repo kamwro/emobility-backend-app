@@ -43,6 +43,17 @@ JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
 
 # Dbeaver - optional
 POSTGRES_DBEAVER_PORT=5433
+
+
+# Throttler - optional 
+THROTTLE_TTL_SHORT = 1000
+THROTTLE_LIMIT_SHORT = 3
+
+THROTTLE_TTL_MEDIUM = 10000
+THROTTLE_LIMIT_MEDIUM = 20
+
+THROTTLE_TTL_LONG = 60000
+THROTTLE_LIMIT_LONG = 100
 ```
 
 You should also change the create-db.sql file accordingly if you changed database name.
