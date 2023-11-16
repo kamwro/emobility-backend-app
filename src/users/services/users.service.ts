@@ -23,8 +23,12 @@ export class UsersService {
     return await this.#usersRepository.find();
   }
 
-  async findOne(id: number): Promise<User | null> {
+  async findOneById(id: number): Promise<User | null> {
     return await this.#usersRepository.findOneBy({ id });
+  }
+
+  async findOneByLogin(login: string): Promise<User | null> {
+    return await this.#usersRepository.findOneBy({ login });
   }
 
   async remove(id: number): Promise<void> {

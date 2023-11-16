@@ -42,11 +42,13 @@ describe('UsersService', () => {
   });
 
   describe('Methods', () => {
-    describe('create + findOne', () => {
+    describe('create + findOneById + findOneByLogin', () => {
       it('should create a new user and find it', async () => {
         service.create(createUserDTOMock);
-        const result = service.findOne(1);
-        expect(result).not.toBeFalsy();
+        const resultById = service.findOneById(1);
+        expect(resultById).not.toBeFalsy();
+        const resultByLogin = service.findOneByLogin('test');
+        expect(resultByLogin).not.toBeFalsy();
       });
     });
 
@@ -62,9 +64,16 @@ describe('UsersService', () => {
       });
     });
 
-    describe('findOne', () => {
+    describe('findOneById', () => {
       it('should return null when trying to find non-existing user', () => {
-        const result = service.findOne(2);
+        const result = service.findOneById(2);
+        expect(result).toBeInstanceOf(Promise<null>);
+      });
+    });
+
+    describe('findOneByLogin', () => {
+      it('should return null when trying to find non-existing user', () => {
+        const result = service.findOneByLogin('random');
         expect(result).toBeInstanceOf(Promise<null>);
       });
     });
@@ -80,7 +89,7 @@ describe('UsersService', () => {
       it('should remove an existing user', async () => {
         service.create(createUserDTOMock);
         service.remove(1);
-        const result = service.findOne(1);
+        const result = service.findOneById(1);
         expect(result).toBeInstanceOf(Promise<null>);
       });
     });

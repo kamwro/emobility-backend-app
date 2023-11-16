@@ -1,18 +1,22 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
+import { JwtService } from '@nestjs/jwt';
 import { CreateUserDTO } from '../../users/dtos/create-user.dto';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcryptjs';
+import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
 
 @Injectable()
 export class AuthService {
   readonly #usersService: UsersService;
-  constructor(usersService: UsersService) {
+  readonly #jwtService: JwtService;
+  constructor(usersService: UsersService, jwtService: JwtService) {
     this.#usersService = usersService;
+    this.#jwtService = jwtService;
   }
 
   static async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
-    return hash(password, saltOrRounds);
+    return await hash(password, saltOrRounds);
   }
 
   async registerUser(createUserDto: CreateUserDTO): Promise<User | undefined> {
@@ -27,10 +31,21 @@ export class AuthService {
     return user;
   }
 
-  logIn(): any {
-    // work in progress
+  async signIn(userSignInDTO: UserSignInDTO): Promise<{ access_token: string }> {
+    let isMatch: boolean;
+    const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
+    if (user?.password) {
+      isMatch = await compare(userSignInDTO.password, user.password);
+    } else throw new NotFoundException('user not found');
+    if (!isMatch) {
+      throw new UnauthorizedException('invalid password');
+    }
+    const payload = { sub: user.id, username: user.login };
+    return {
+      access_token: await this.#jwtService.signAsync(payload),
+    };
   }
-  logOut(): any {
+  signOut(): any {
     // work in progress
   }
 }

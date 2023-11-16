@@ -6,9 +6,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
 import InternalServerErrorException from '@nestjs/common';
 import { Address } from '../../users/entities/address.entity';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let jwtService: JwtService;
   let usersService: UsersService;
   const userRepositoryToken = getRepositoryToken(User);
   const addressRepositoryToken = getRepositoryToken(Address);
@@ -17,6 +19,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        JwtService,
         UsersService,
         {
           provide: userRepositoryToken,
@@ -37,6 +40,7 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {
@@ -46,6 +50,9 @@ describe('AuthService', () => {
   describe('Providers', () => {
     it('users service should be defined', () => {
       expect(usersService).toBeDefined();
+    });
+    it('jwt service should be defined', () => {
+      expect(jwtService).toBeDefined();
     });
   });
 
@@ -58,7 +65,7 @@ describe('AuthService', () => {
     describe('registerUser', () => {
       it('should register an user', () => {
         service.registerUser(createUserDTOMock);
-        const result = usersService.findOne(1);
+        const result = usersService.findOneById(1);
         expect(result === undefined || result === null).toEqual(false);
       });
       it('should throw an InternalServerException with a custom message when trying to register taken email address', () => {

@@ -32,10 +32,16 @@ POSTGRES_NAME=test
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 
-# API 
+# API
 NEST_API_PORT=3000
 
-# Dbeaver - optional 
+# Token
+TOKEN_EXPIRES_IN_MIN = 5
+# Secret - 32 char secret code for JWT token. You can use something like $ openssl rand -hex 32 to generate it
+JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+
+
+# Dbeaver - optional
 POSTGRES_DBEAVER_PORT=5433
 ```
 
