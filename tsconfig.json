@@ -18,6 +18,7 @@
     "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "strictPropertyInitialization": false
   }
 }
