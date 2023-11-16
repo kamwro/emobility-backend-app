@@ -5,11 +5,13 @@ import { User } from '../../users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
 import InternalServerErrorException from '@nestjs/common';
+import { Address } from '../../users/entities/address.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
   const userRepositoryToken = getRepositoryToken(User);
+  const addressRepositoryToken = getRepositoryToken(Address);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,6 +24,12 @@ describe('AuthService', () => {
             create: jest.fn(),
             findOneBy: jest.fn(),
             save: jest.fn(),
+          },
+        },
+        {
+          provide: addressRepositoryToken,
+          useValue: {
+            create: jest.fn(),
           },
         },
       ],

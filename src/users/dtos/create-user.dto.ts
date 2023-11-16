@@ -1,6 +1,7 @@
-import { IsString, IsDateString, IsNotEmpty, IsEmail, Length, Matches} from 'class-validator';
+import { IsString, IsDateString, IsNotEmpty, IsEmail, Length, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Constants } from '../../utils/constants';
+import { CreateAddressDTO } from './create-address.dto';
 
 export class CreateUserDTO {
   @IsNotEmpty({ message: 'login is required' })
@@ -27,13 +28,12 @@ export class CreateUserDTO {
   @ApiProperty()
   readonly lastName: string;
 
-  @IsNotEmpty({ message: 'address is required' })
-  @IsString()
-  @ApiProperty()
-  readonly address: string;
-
   @IsNotEmpty({ message: 'birthday is required' })
   @IsDateString()
   @ApiProperty()
   readonly birthday: string;
+
+  @IsNotEmpty({ message: 'address data is required' })
+  @ApiProperty({ type: CreateAddressDTO })
+  readonly address: CreateAddressDTO;
 }

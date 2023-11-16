@@ -1,6 +1,7 @@
 import { AbstractEntity } from '../../utils/abstracts/abstract-entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinTable } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Address } from './address.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity {
@@ -18,11 +19,12 @@ export class User extends AbstractEntity {
   public lastName: string;
 
   @Column()
-  public address: string;
-
-  @Column()
   public birthday: Date;
 
   @Column({ default: false })
   public isActive: boolean;
+
+  @ManyToOne(() => Address, (address: Address) => address.user, { cascade: true })
+  @JoinTable()
+  public address: Address;
 }

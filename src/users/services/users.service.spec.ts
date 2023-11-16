@@ -2,13 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, TypeORMError } from 'typeorm';
+import { TypeORMError } from 'typeorm';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
+import { Address } from '../entities/address.entity';
 
 describe('UsersService', () => {
   let service: UsersService;
-  let userRepository: Repository<User>;
   const userRepositoryToken = getRepositoryToken(User);
+  const addressRepositoryToken = getRepositoryToken(Address);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,21 +25,20 @@ describe('UsersService', () => {
             save: jest.fn(),
           },
         },
+        {
+          provide: addressRepositoryToken,
+          useValue: {
+            create: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    userRepository = module.get<Repository<User>>(userRepositoryToken);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('Providers', () => {
-    it('user repository should be defined', () => {
-      expect(userRepository).toBeDefined();
-    });
   });
 
   describe('Methods', () => {
