@@ -20,7 +20,6 @@ import { APP_GUARD } from '@nestjs/core';
       validate,
     }),
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => [
         {
           name: 'short',
