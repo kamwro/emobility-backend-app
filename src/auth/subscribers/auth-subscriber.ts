@@ -1,22 +1,22 @@
 import { InsertEvent, UpdateEvent, EntitySubscriberInterface, EventSubscriber } from 'typeorm';
-import { Authentication } from '../entities';
-import { HashProvider } from '../../utils';
+import { User } from '../../users/entities/user.entity';
+import { AuthService } from '../services/auth.service';
 
 @EventSubscriber()
-export class AuthSubscriber implements EntitySubscriberInterface<Authentication> {
+export class AuthSubscriber implements EntitySubscriberInterface<User> {
   listenTo() {
-    return Authentication;
+    return User;
   }
 
-  async beforeInsert({ entity }: InsertEvent<Authentication>): Promise<void> {
+  async beforeInsert({ entity }: InsertEvent<User>): Promise<void> {
     if (entity.password) {
-      entity.password = await HashProvider.getHash(entity.password);
+      entity.password = await AuthService.getHash(entity.password);
     }
   }
 
-  async beforeUpdate({ entity, databaseEntity }: UpdateEvent<Authentication>): Promise<void> {
+  async beforeUpdate({ entity, databaseEntity }: UpdateEvent<User>): Promise<void> {
     if (entity!.password) {
-      const password = await HashProvider.getHash(entity!.password);
+      const password = await AuthService.getHash(entity!.password);
 
       if (password !== databaseEntity?.password) {
         entity!.password = password;

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from '../users/entities';
-import { Authentication } from '../auth/entities';
-import { AuthSubscriber } from '../auth/subscribers';
+import { User } from '../users/entities/user.entity';
+import { AuthSubscriber } from '../auth/subscribers/auth-subscriber';
+import { Address } from '../users/entities/address.entity';
 
 @Module({
   imports: [
@@ -15,8 +15,8 @@ import { AuthSubscriber } from '../auth/subscribers';
         port: configService.get('POSTGRES_PORT'),
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
-        database: configService.get('POSTGRES_DB_NAME'),
-        entities: [User, Authentication],
+        database: configService.get('POSTGRES_NAME'),
+        entities: [User, Address],
         subscribers: [AuthSubscriber],
         synchronize: true,
         // TODO: introduce migrations for production

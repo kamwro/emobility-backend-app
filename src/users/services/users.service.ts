@@ -1,50 +1,44 @@
-import { Injectable, UnprocessableEntityException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
-import { QueryRunner, Repository } from 'typeorm';
-import { User } from '../entities';
-import { CreateUserDTO } from '../dtos';
-import { Authentication } from '../../auth/entities';
-import { TypeORMError } from 'typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../entities/user.entity';
+import { CreateUserDTO } from '../dtos/create-user.dto';
+import { Address } from '../entities/address.entity';
 
 @Injectable()
 export class UsersService {
+  readonly #usersRepository: Repository<User>;
+  readonly #addressRepository: Repository<Address>;
   constructor(
     @InjectRepository(User)
-    private readonly _usersRepository: Repository<User>,
-  ) {}
+    usersRepository: Repository<User>,
+    @InjectRepository(Address)
+    addressRepository: Repository<Address>,
+  ) {
+    this.#usersRepository = usersRepository;
+    this.#addressRepository = addressRepository;
+  }
 
   async findAll(): Promise<User[]> {
-    return this._usersRepository.find();
+    return await this.#usersRepository.find();
   }
 
   async findOne(id: number): Promise<User | null> {
-    if (typeof id !== 'number') {
-      throw new UnprocessableEntityException('id must be of type number');
-    }
-    return this._usersRepository.findOneBy({ id });
+    return await this.#usersRepository.findOneBy({ id });
   }
 
-  async remove(id: number, queryRunner: QueryRunner): Promise<void> {
-    const user = await this.findOne((id = id));
-    if (typeof id !== 'number') {
-      throw new UnprocessableEntityException('id must be of type number');
-    } else if (user !== null) {
-      this._usersRepository.delete(id);
-      queryRunner.manager.remove(user);
+  async remove(id: number): Promise<void> {
+    const user = this.#usersRepository.findOneBy({ id });
+    if (user !== null) {
+      await this.#usersRepository.delete(id);
     } else {
       throw new NotFoundException('there is no user with that id');
     }
   }
 
-  async create(createUserDTO: CreateUserDTO, authentication: Authentication | undefined, queryRunner: QueryRunner): Promise<User | undefined> {
-    let user: User | undefined = undefined;
-    try {
-      user = this._usersRepository.create({ ...createUserDTO, authentication });
-      return queryRunner.manager.save(user);
-    } catch (e) {
-      throw new TypeORMError('something went wrong');
-    } finally {
-      return user;
-    }
+  async create(createUserDTO: CreateUserDTO): Promise<User> {
+    const address = this.#addressRepository.create(createUserDTO.address);
+    const user = this.#usersRepository.create({ ...createUserDTO, address });
+    return await this.#usersRepository.save(user);
   }
 }
