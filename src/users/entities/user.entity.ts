@@ -26,7 +26,7 @@ export class User extends AbstractEntity {
 
   @Column({ type: 'varchar', nullable: true })
   @Exclude()
-  public hashedRefreshedToken: string | null;
+  public hashedRefreshToken: string | null;
 
   @ManyToOne(() => Address, (address: Address) => address.user, { cascade: true })
   @JoinTable()

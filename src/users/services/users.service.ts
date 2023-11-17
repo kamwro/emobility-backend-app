@@ -50,7 +50,7 @@ export class UsersService {
   async updateRefreshToken(userId: number, hash: string | null): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ id: userId });
     if (user) {
-      user.hashedRefreshedToken = hash;
+      user.hashedRefreshToken = hash;
       await this.#usersRepository.save(user);
     }
     return { message: 'signed out' };

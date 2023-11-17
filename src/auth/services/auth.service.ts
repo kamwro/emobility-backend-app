@@ -62,10 +62,10 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('user not found');
     }
-    if (!user.hashedRefreshedToken) {
+    if (!user.hashedRefreshToken) {
       throw new UnauthorizedException('access denied - no refresh token active');
     }
-    const isMatch = await compare(refreshToken, user.hashedRefreshedToken);
+    const isMatch = await compare(refreshToken, user.hashedRefreshToken);
     if (!isMatch) {
       throw new UnauthorizedException('access denied - tokens dont match');
     }
