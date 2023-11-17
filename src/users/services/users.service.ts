@@ -34,11 +34,11 @@ export class UsersService {
 
   async remove(id: number): Promise<void> {
     const user = this.#usersRepository.findOneBy({ id: id });
-    if (user !== null) {
-      await this.#usersRepository.delete(id);
-    } else {
+    if (!user) {
       throw new NotFoundException('there is no user with that id');
     }
+
+    await this.#usersRepository.delete(id);
   }
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {
