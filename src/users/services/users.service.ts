@@ -29,7 +29,11 @@ export class UsersService {
 
   async remove(id: number): Promise<void> {
     const user = this.#usersRepository.findOneBy({ id });
-    if (user !== null) {
+    if (!user) {
+      throw new NotFoundException('there is no user with that id');
+    }
+    
+    await this.#usersRepository.delete(id);
       await this.#usersRepository.delete(id);
     } else {
       throw new NotFoundException('there is no user with that id');
