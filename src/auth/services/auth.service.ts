@@ -56,7 +56,6 @@ export class AuthService {
     await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
     return tokens;
 
-    // TODO: not signing in when already signed in
     // TODO: unit tests
   }
 
