@@ -2,7 +2,7 @@ import { Controller, Get, Patch, Delete } from '@nestjs/common';
 import { MyAccountService } from '../services/my-account.service';
 import { ApiTags } from '@nestjs/swagger';
 
-@Controller('me')
+@Controller('my-account')
 @ApiTags('My Account')
 export class MyAccountController {
   readonly #myAccountService: MyAccountService;
