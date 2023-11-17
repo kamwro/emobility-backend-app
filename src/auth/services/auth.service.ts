@@ -2,54 +2,110 @@ import { Injectable, InternalServerErrorException, NotFoundException, Unauthoriz
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { CreateUserDTO } from '../../users/dtos/create-user.dto';
 import { hash, compare } from 'bcryptjs';
 import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
+import { Tokens } from '../../utils/types/tokens.type';
+import { UserInfo } from '../../utils/types/user-info.type';
+import { Message } from '../../utils/types/message.type';
+import { JwtPayload } from '../../utils/types/jwt-payload.type';
 
 @Injectable()
 export class AuthService {
   readonly #usersService: UsersService;
   readonly #jwtService: JwtService;
-  constructor(usersService: UsersService, jwtService: JwtService) {
+  readonly #configService: ConfigService;
+  constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService) {
     this.#usersService = usersService;
     this.#jwtService = jwtService;
+    this.#configService = configService;
+  }
+
+  async registerUser(createUserDto: CreateUserDTO): Promise<UserInfo> {
+    let user: User;
+    let tokens: Tokens;
+    try {
+      user = await this.#usersService.create(createUserDto);
+    } catch (e) {
+      throw new InternalServerErrorException('email already taken');
+    }
+    tokens = await this.getTokens({ sub: user.id, login: user.login });
+    await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
+    // TODO: sending an email with verification link
+    return { entity: user, tokens: tokens };
+  }
+
+  async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens | boolean> {
+    const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
+    if (user) {
+      if (!this.isMatch(userSignInDTO, user)) {
+        throw new UnauthorizedException('invalid password');
+      }
+      const payload = { sub: user.id, login: user.login };
+      const tokens = await this.getTokens(payload);
+      await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
+      return tokens;
+    }
+    return false;
+    // TODO: not signing in when already signed in
+    // TODO: unit tests
+  }
+
+  async signOut(userId: number): Promise<Message> {
+    return await this.#usersService.updateRefreshToken(userId, null);
+    // TODO: unit tests
+  }
+
+  async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
+    const user = await this.#usersService.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+    if (!user.hashedRefreshedToken) {
+      throw new UnauthorizedException('access denied - no refresh token active');
+    }
+    const isMatch = await compare(refreshToken, user.hashedRefreshedToken);
+    if (!isMatch) {
+      throw new UnauthorizedException('access denied - tokens dont match');
+    }
+
+    const tokens = await this.getTokens({ sub: user.id, login: user.login });
+    await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
+
+    return tokens;
+    // TODO: unit tests
   }
 
   static async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
     return await hash(password, saltOrRounds);
   }
 
-  async registerUser(createUserDto: CreateUserDTO): Promise<User | undefined> {
-    let user: User | undefined = undefined;
-
-    try {
-      user = await this.#usersService.create(createUserDto);
-    } catch (e) {
-      throw new InternalServerErrorException('email already taken');
-    }
-    // TODO: sending an email with verification link
-    return user;
-  }
-
-  async isMatch(userSignInDTO: UserSignInDTO, user: User | null): Promise<boolean> {
-    if (user?.password) {
+  async isMatch(userSignInDTO: UserSignInDTO, user: User): Promise<boolean> {
+    if (user.password) {
       return await compare(userSignInDTO.password, user.password);
     } else throw new NotFoundException('user not found');
     // TODO: unit tests
   }
 
-  async signIn(userSignInDTO: UserSignInDTO): Promise<{ access_token: string }> {
-    const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
-    if (!this.isMatch(userSignInDTO, user)) {
-      throw new UnauthorizedException('invalid password');
-    }
-    const payload = { sub: user?.id, username: user?.login };
-    return {
-      access_token: await this.#jwtService.signAsync(payload),
-    };
+  async getTokens(payload: JwtPayload): Promise<Tokens> {
+    const tokens = await Promise.all([
+      this.#jwtService.signAsync(payload, {
+        secret: this.#configService.get('ACCESS_JWT_SECRET'),
+        expiresIn: this.#configService.get('ACCESS_TOKEN_EXPIRES_IN_MIN') * 60,
+      }),
+      this.#jwtService.signAsync(payload, {
+        secret: this.#configService.get('REFRESH_JWT_SECRET'),
+        expiresIn: this.#configService.get('REFRESH_TOKEN_EXPIRES_IN_DAY') * 60 * 60 * 24,
+      }),
+    ]);
+    return { accessToken: tokens[0], refreshToken: tokens[1] };
     // TODO: unit tests
   }
-  signOut(): any {
-    // work in progress
+
+  async saveNotNullRefreshTokenToUser(userId: number, plainToken: string): Promise<Message> {
+    const hashedToken = await AuthService.getHash(plainToken);
+    return await this.#usersService.updateRefreshToken(userId, hashedToken);
+    // TODO: unit tests
   }
 }

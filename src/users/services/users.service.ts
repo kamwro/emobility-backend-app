@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { Address } from '../entities/address.entity';
+import { Message } from '../../utils/types/message.type';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,7 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<void> {
-    const user = this.#usersRepository.findOneBy({ id });
+    const user = this.#usersRepository.findOneBy({ id: id });
     if (user !== null) {
       await this.#usersRepository.delete(id);
     } else {
@@ -44,5 +45,15 @@ export class UsersService {
     const address = this.#addressRepository.create(createUserDTO.address);
     const user = this.#usersRepository.create({ ...createUserDTO, address });
     return await this.#usersRepository.save(user);
+  }
+
+  async updateRefreshToken(userId: number, hash: string | null): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ id: userId });
+    if (user) {
+      user.hashedRefreshedToken = hash;
+      await this.#usersRepository.save(user);
+    }
+    return { message: 'signed out' };
+    // TODO: unit tests
   }
 }

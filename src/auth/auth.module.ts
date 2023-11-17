@@ -3,29 +3,12 @@ import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt/dist';
-import { ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './guards/roles.guard';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { AccessTokenStrategy } from './strategies/access-token.strategy';
 
 @Module({
-  imports: [
-    UsersModule,
-    JwtModule.registerAsync({
-      useFactory: (configService: ConfigService) => ({
-        global: true,
-        secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get('TOKEN_EXPIRES_IN_MIN') * 60 },
-      }),
-      inject: [ConfigService],
-    }),
-  ],
+  imports: [UsersModule, JwtModule.register({})],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-  ],
+  providers: [AuthService, RefreshTokenStrategy, AccessTokenStrategy],
 })
 export class AuthModule {}

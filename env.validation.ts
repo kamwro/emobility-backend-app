@@ -32,11 +32,19 @@ class EnvironmentVariables {
 
   @IsString()
   @MinLength(32)
-  JWT_SECRET: string;
+  ACCESS_JWT_SECRET: string;
+
+  @IsString()
+  @MinLength(32)
+  REFRESH_JWT_SECRET: string;
 
   @IsNumber()
   @IsNotEmpty()
-  TOKEN_EXPIRES_IN_MIN: number = 5;
+  ACCESS_TOKEN_EXPIRES_IN_MIN: number = 5;
+
+  @IsNumber()
+  @IsNotEmpty()
+  REFRESH_TOKEN_EXPIRES_IN_DAY: number = 7;
 
   @IsNumber()
   @IsNotEmpty()
