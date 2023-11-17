@@ -31,7 +31,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Successfully signed in' })
-  async signIn(@Body() body: UserSignInDTO): Promise<Tokens | boolean> {
+  async signIn(@Body() body: UserSignInDTO): Promise<Tokens> {
     return await this.#authService.signIn(body);
   }
 

@@ -59,7 +59,7 @@ describe('AuthService', () => {
   describe('Methods', () => {
     describe('getHash', () => {
       it('should return a hashed password', async () => {
-        expect(AuthService.getHash('test')).not.toEqual('test');
+        expect(service.getHash('test')).not.toEqual('test');
       });
     });
     describe('registerUser', () => {

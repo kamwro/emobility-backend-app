@@ -38,6 +38,7 @@ NEST_API_PORT=3000
 # Tokens
 ACCESS_TOKEN_EXPIRES_IN_MIN = 5
 REFRESH_TOKEN_EXPIRES_IN_DAY = 7
+
 # Secret - 32 char secret code for JWT token. You can use something like $ openssl rand -hex 32 to generate it
 ACCESS_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
 REFRESH_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE

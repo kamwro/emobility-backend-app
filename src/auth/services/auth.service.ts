@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -26,7 +26,8 @@ export class AuthService {
     let user: User;
     let tokens: Tokens;
     try {
-      user = await this.#usersService.create(createUserDto);
+      const hashedPassword = await this.getHash(createUserDto.password);
+      user = await this.#usersService.create({ ...createUserDto, password: hashedPassword });
     } catch (e) {
       throw new InternalServerErrorException('email already taken');
     }
@@ -36,23 +37,34 @@ export class AuthService {
     return { entity: user, tokens: tokens };
   }
 
-  async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens | boolean> {
+  async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens> {
     const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
-    if (user) {
-      if (!this.isMatch(userSignInDTO, user)) {
-        throw new UnauthorizedException('invalid password');
-      }
-      const payload = { sub: user.id, login: user.login };
-      const tokens = await this.getTokens(payload);
-      await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
-      return tokens;
+    if (!user) {
+      throw new NotFoundException('user with that id does not exist');
     }
-    return false;
+
+    if (user.hashedRefreshToken) {
+      throw new BadRequestException('user already signed in');
+    }
+
+    if (!(await compare(userSignInDTO.password, user.password))) {
+      throw new UnauthorizedException('invalid password');
+    }
+
+    const payload = { sub: user.id, login: user.login };
+    const tokens = await this.getTokens(payload);
+    await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
+    return tokens;
+
     // TODO: not signing in when already signed in
     // TODO: unit tests
   }
 
   async signOut(userId: number): Promise<Message> {
+    const user = await this.#usersService.findOneById(userId);
+    if (!user || !user.hashedRefreshToken) {
+      throw new NotFoundException('user is not logged in');
+    }
     return await this.#usersService.updateRefreshToken(userId, null);
     // TODO: unit tests
   }
@@ -77,17 +89,6 @@ export class AuthService {
     // TODO: unit tests
   }
 
-  static async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
-    return await hash(password, saltOrRounds);
-  }
-
-  async isMatch(userSignInDTO: UserSignInDTO, user: User): Promise<boolean> {
-    if (user.password) {
-      return await compare(userSignInDTO.password, user.password);
-    } else throw new NotFoundException('user not found');
-    // TODO: unit tests
-  }
-
   async getTokens(payload: JwtPayload): Promise<Tokens> {
     const tokens = await Promise.all([
       this.#jwtService.signAsync(payload, {
@@ -99,13 +100,18 @@ export class AuthService {
         expiresIn: this.#configService.get('REFRESH_TOKEN_EXPIRES_IN_DAY') * 60 * 60 * 24,
       }),
     ]);
+
     return { accessToken: tokens[0], refreshToken: tokens[1] };
     // TODO: unit tests
   }
 
   async saveNotNullRefreshTokenToUser(userId: number, plainToken: string): Promise<Message> {
-    const hashedToken = await AuthService.getHash(plainToken);
+    const hashedToken = await this.getHash(plainToken);
     return await this.#usersService.updateRefreshToken(userId, hashedToken);
     // TODO: unit tests
+  }
+
+  async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
+    return await hash(password, saltOrRounds);
   }
 }
