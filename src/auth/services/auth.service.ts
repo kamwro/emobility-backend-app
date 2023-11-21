@@ -7,7 +7,7 @@ import { CreateUserDTO } from '../../users/dtos/create-user.dto';
 import { hash, compare } from 'bcryptjs';
 import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
 import { Tokens } from '../../utils/types/tokens.type';
-import { UserInfo } from '../../utils/types/user-info.type';
+import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
 import { Message } from '../../utils/types/message.type';
 import { JwtPayload } from '../../utils/types/jwt-payload.type';
 
@@ -22,25 +22,28 @@ export class AuthService {
     this.#configService = configService;
   }
 
-  async registerUser(createUserDto: CreateUserDTO): Promise<UserInfo> {
+  async registerUser(createUserDto: CreateUserDTO): Promise<UserRegisterInfo> {
     let user: User;
-    let tokens: Tokens;
     try {
       const hashedPassword = await this.getHash(createUserDto.password);
       user = await this.#usersService.create({ ...createUserDto, password: hashedPassword });
     } catch (e) {
       throw new InternalServerErrorException('email already taken');
     }
-    tokens = await this.getTokens({ sub: user.id, login: user.login });
-    await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
+    const verificationKey = await this.getVerificationToken(user.login);
+    await this.#usersService.updateVerificationKey(user.login, verificationKey);
     // TODO: sending an email with verification link
-    return { entity: user, tokens: tokens };
+    return { info: user, message: 'activation link has been sent' };
   }
 
   async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens> {
     const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
     if (!user) {
       throw new NotFoundException('user with that id does not exist');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('user not active');
     }
 
     if (user.hashedRefreshToken) {
@@ -112,5 +115,24 @@ export class AuthService {
 
   async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
     return await hash(password, saltOrRounds);
+  }
+
+  async getVerificationToken(userLogin: string): Promise<string> {
+    const verificationToken = this.#jwtService.sign(
+      { userLogin },
+      {
+        secret: this.#configService.get('VERIFICATION_JWT_SECRET'),
+        expiresIn: this.#configService.get('VERIFICATION_TOKEN_EXPIRES_IN_SEC'),
+      },
+    );
+    return verificationToken;
+    // TODO: unit tests
+  }
+
+  async sendConfirmationLink(userLogin: string): Promise<Message> {
+    const verificationKey = await this.getVerificationToken(userLogin)
+    await this.#usersService.updateVerificationKey(userLogin, verificationKey);
+    return {'message': 'confirmation link has been send'}
+    // TODO: unit tests
   }
 }

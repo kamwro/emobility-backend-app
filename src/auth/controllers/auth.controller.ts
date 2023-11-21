@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { CreateUserDTO } from '../../users/dtos/create-user.dto';
 import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
 import { Tokens } from '../../utils/types/tokens.type';
-import { UserInfo } from '../../utils/types/user-info.type';
+import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
 import { Message } from '../../utils/types/message.type';
 import { AuthGuard } from '@nestjs/passport';
 import { GetCurrentUser } from '../../utils/decorators/get-current-user.decorator';
@@ -20,9 +20,9 @@ export class AuthController {
   @ApiTags('Account Creation')
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ description: 'Successfully created an account' })
+  @ApiCreatedResponse({ description: 'Successfully created an account - activation has been sent' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error - email is probably already taken' })
-  async register(@Body() body: CreateUserDTO): Promise<UserInfo> {
+  async register(@Body() body: CreateUserDTO): Promise<UserRegisterInfo> {
     return await this.#authService.registerUser(body);
   }
 

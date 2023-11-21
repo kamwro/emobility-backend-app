@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './controllers/app.controller';
-import { MyAccountModule } from '../my-account/my-account.module';
+// import { MyAccountModule } from '../my-account/my-account.module';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { DbModule } from '../db/db.module';
@@ -11,7 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    MyAccountModule,
+    // MyAccountModule,
     AuthModule,
     UsersModule,
     DbModule,

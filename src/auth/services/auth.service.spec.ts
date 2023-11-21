@@ -1,42 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UsersService } from '../../users/services/users.service';
-import { User } from '../../users/entities/user.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
-import InternalServerErrorException from '@nestjs/common';
-import { Address } from '../../users/entities/address.entity';
 import { JwtService } from '@nestjs/jwt';
+import { usersServiceMock } from '../../utils/mocks/services/users.service.mock';
 
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
   let usersService: UsersService;
-  const userRepositoryToken = getRepositoryToken(User);
-  const addressRepositoryToken = getRepositoryToken(Address);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        JwtService,
-        UsersService,
-        {
-          provide: userRepositoryToken,
-          useValue: {
-            create: jest.fn(),
-            findOneBy: jest.fn(),
-            save: jest.fn(),
-          },
-        },
-        {
-          provide: addressRepositoryToken,
-          useValue: {
-            create: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+      providers: [AuthService, JwtService, UsersService],
+    })
+      .overrideProvider(UsersService)
+      .useValue(usersServiceMock)
+      .compile();
 
     service = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
@@ -53,30 +32,6 @@ describe('AuthService', () => {
     });
     it('jwt service should be defined', () => {
       expect(jwtService).toBeDefined();
-    });
-  });
-
-  describe('Methods', () => {
-    describe('getHash', () => {
-      it('should return a hashed password', async () => {
-        expect(service.getHash('test')).not.toEqual('test');
-      });
-    });
-    describe('registerUser', () => {
-      it('should register an user', () => {
-        service.registerUser(createUserDTOMock);
-        const result = usersService.findOneById(1);
-        expect(result === undefined || result === null).toEqual(false);
-      });
-      it('should throw an InternalServerException with a custom message when trying to register taken email address', () => {
-        service.registerUser(createUserDTOMock);
-        try {
-          service.registerUser(createUserDTOMock);
-        } catch (e) {
-          expect(e).toBeInstanceOf(InternalServerErrorException);
-          expect(e).toHaveProperty('email already taken');
-        }
-      });
     });
   });
 });

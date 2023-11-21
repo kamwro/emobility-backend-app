@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { Address } from '../entities/address.entity';
@@ -32,14 +32,13 @@ export class UsersService {
     return await this.#usersRepository.findOneBy({ login });
   }
 
-  async remove(id: number): Promise<void> {
-    const user = this.#usersRepository.findOneBy({ id: id });
+  async remove(id: number): Promise<DeleteResult> {
+    const user = await this.#usersRepository.findOneBy({ id: id });
     if (!user) {
       throw new NotFoundException('there is no user with that id');
     }
 
-    await this.#usersRepository.delete(id);
-    // TODO: unit tests
+    return await this.#usersRepository.delete(id);
   }
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {
@@ -56,7 +55,32 @@ export class UsersService {
 
     user.hashedRefreshToken = hash;
     await this.#usersRepository.save(user);
-    return { message: 'signed out' };
-    // TODO: unit tests
+    return { message: 'refreshed token has been updated' };
+  }
+
+  async updateVerificationKey(userLogin: string, verificationKey: string): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ login: userLogin });
+    if (!user) {
+      throw new NotFoundException('there is no user with that id');
+    }
+    user.verificationKey = verificationKey;
+    await this.#usersRepository.save(user);
+    return { message: 'new verification key has been attached' };
+  }
+
+  async activate(userId: number, verificationKey: string): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('there is no user with that id');
+    }
+    if (user.isActive) {
+      throw new BadRequestException('user already active');
+    }
+    if (user.verificationKey !== verificationKey) {
+      throw new UnauthorizedException('verification key does not match');
+    }
+    user.isActive = true;
+    await this.#usersRepository.save(user);
+    return { message: 'user account activated' };
   }
 }

@@ -10,6 +10,11 @@ export class MyAccountController {
     this.#myAccountService = myAccountService;
   }
 
+  //   @Patch('resend-confirmation-link')
+  //   async resendActivationLink(@GetCurrentUser('login') login: string): Promise<Message> {
+  //     return await this.#authService.sendConfirmationLink(login);
+  //   }
+
   @Get('info')
   getMyInfo(): any {
     return this.#myAccountService.getMyInfo();
@@ -29,4 +34,10 @@ export class MyAccountController {
   deleteMyAccount(): any {
     return this.#myAccountService.deleteMyAccount();
   }
+
+  //   @ApiExcludeEndpoint()
+  //   @Get('/activate/:verificationCode')
+  //   async activateMyAccount(@GetCurrentUser('sub') userId: number, @Param() verificationCode: string): Promise<Message> {
+  //     return await this.#usersService.activateUser(userId, verificationCode);
+  //   }
 }
