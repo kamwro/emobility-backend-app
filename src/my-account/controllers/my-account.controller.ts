@@ -1,6 +1,8 @@
-import { Controller, Get, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param } from '@nestjs/common';
 import { MyAccountService } from '../services/my-account.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
+import { GetCurrentUser } from '../../utils/decorators/get-current-user.decorator';
+import { Message } from '../../utils/types/message.type';
 
 @Controller('my-account')
 @ApiTags('My Account')
@@ -9,11 +11,6 @@ export class MyAccountController {
   constructor(myAccountService: MyAccountService) {
     this.#myAccountService = myAccountService;
   }
-
-  //   @Patch('resend-confirmation-link')
-  //   async resendActivationLink(@GetCurrentUser('login') login: string): Promise<Message> {
-  //     return await this.#authService.sendConfirmationLink(login);
-  //   }
 
   @Get('info')
   getMyInfo(): any {
@@ -35,9 +32,9 @@ export class MyAccountController {
     return this.#myAccountService.deleteMyAccount();
   }
 
-  //   @ApiExcludeEndpoint()
-  //   @Get('/activate/:verificationCode')
-  //   async activateMyAccount(@GetCurrentUser('sub') userId: number, @Param() verificationCode: string): Promise<Message> {
-  //     return await this.#usersService.activateUser(userId, verificationCode);
-  //   }
+    @ApiExcludeEndpoint()
+    @Get('/activate/:verificationCode')
+    async activateMyAccount(@GetCurrentUser('sub') userId: number, @Param() verificationCode: string): Promise<Message> {
+      return await this.#myAccountService.activateMyAccount(userId, verificationCode);
+    }
 }

@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CreateUserDTO } from '../../users/dtos/create-user.dto';
-import { hash, compare } from 'bcryptjs';
+import { hash, compare } from 'bcrypt';
 import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
 import { Tokens } from '../../utils/types/tokens.type';
 import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
@@ -25,10 +25,10 @@ export class AuthService {
   async registerUser(createUserDto: CreateUserDTO): Promise<UserRegisterInfo> {
     let user: User;
     try {
-      const hashedPassword = await this.getHash(createUserDto.password);
+      const hashedPassword = await hash(createUserDto.password, 10);
       user = await this.#usersService.create({ ...createUserDto, password: hashedPassword });
     } catch (e) {
-      throw new InternalServerErrorException('email already taken');
+      throw new BadRequestException('email already taken');
     }
     const verificationKey = await this.getVerificationToken(user.login);
     await this.#usersService.updateVerificationKey(user.login, verificationKey);
@@ -39,7 +39,7 @@ export class AuthService {
   async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens> {
     const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
     if (!user) {
-      throw new NotFoundException('user with that id does not exist');
+      throw new NotFoundException('user with that login does not exist');
     }
 
     if (!user.isActive) {
@@ -47,28 +47,29 @@ export class AuthService {
     }
 
     if (user.hashedRefreshToken) {
-      throw new BadRequestException('user already signed in');
+      throw new UnauthorizedException('user already signed in');
     }
 
-    if (!(await compare(userSignInDTO.password, user.password))) {
+    const isMatch = await compare(userSignInDTO.password, user.password);
+    if (!isMatch) {
       throw new UnauthorizedException('invalid password');
     }
 
     const payload = { sub: user.id, login: user.login };
     const tokens = await this.getTokens(payload);
-    await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
-    return tokens;
 
-    // TODO: unit tests
+    const hashedRefreshToken = tokens.refreshToken;
+    await this.#usersService.updateRefreshToken(user.id, hashedRefreshToken);
+
+    return tokens;
   }
 
   async signOut(userId: number): Promise<Message> {
     const user = await this.#usersService.findOneById(userId);
-    if (!user || !user.hashedRefreshToken) {
+    if (!user?.hashedRefreshToken) {
       throw new NotFoundException('user is not logged in');
     }
     return await this.#usersService.updateRefreshToken(userId, null);
-    // TODO: unit tests
   }
 
   async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
@@ -76,19 +77,27 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('user not found');
     }
-    if (!user.hashedRefreshToken) {
-      throw new UnauthorizedException('access denied - no refresh token active');
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('user not active');
     }
+
+    if (!user.hashedRefreshToken) {
+      throw new UnauthorizedException('no refresh token active');
+    }
+
     const isMatch = await compare(refreshToken, user.hashedRefreshToken);
     if (!isMatch) {
-      throw new UnauthorizedException('access denied - tokens dont match');
+      throw new UnauthorizedException('tokens do not match');
     }
 
-    const tokens = await this.getTokens({ sub: user.id, login: user.login });
-    await this.saveNotNullRefreshTokenToUser(user.id, tokens.refreshToken);
+    const payload = { sub: userId, login: user.login };
+    const tokens = await this.getTokens(payload);
+
+    const hashedRefreshToken = tokens.refreshToken;
+    await this.#usersService.updateRefreshToken(userId, hashedRefreshToken);
 
     return tokens;
-    // TODO: unit tests
   }
 
   async getTokens(payload: JwtPayload): Promise<Tokens> {
@@ -104,21 +113,10 @@ export class AuthService {
     ]);
 
     return { accessToken: tokens[0], refreshToken: tokens[1] };
-    // TODO: unit tests
-  }
-
-  async saveNotNullRefreshTokenToUser(userId: number, plainToken: string): Promise<Message> {
-    const hashedToken = await this.getHash(plainToken);
-    return await this.#usersService.updateRefreshToken(userId, hashedToken);
-    // TODO: unit tests
-  }
-
-  async getHash(password: string, saltOrRounds: number = 10): Promise<string> {
-    return await hash(password, saltOrRounds);
   }
 
   async getVerificationToken(userLogin: string): Promise<string> {
-    const verificationToken = this.#jwtService.sign(
+    const verificationToken = this.#jwtService.signAsync(
       { userLogin },
       {
         secret: this.#configService.get('VERIFICATION_JWT_SECRET'),
@@ -126,13 +124,12 @@ export class AuthService {
       },
     );
     return verificationToken;
-    // TODO: unit tests
   }
 
   async sendConfirmationLink(userLogin: string): Promise<Message> {
-    const verificationKey = await this.getVerificationToken(userLogin)
+    const verificationKey = await this.getVerificationToken(userLogin);
     await this.#usersService.updateVerificationKey(userLogin, verificationKey);
-    return {'message': 'confirmation link has been send'}
-    // TODO: unit tests
+    // send email
+    return { message: 'confirmation link has been send' };
   }
 }

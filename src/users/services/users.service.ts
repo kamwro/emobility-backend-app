@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { Address } from '../entities/address.entity';
@@ -32,13 +32,14 @@ export class UsersService {
     return await this.#usersRepository.findOneBy({ login });
   }
 
-  async remove(id: number): Promise<DeleteResult> {
+  async remove(id: number): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ id: id });
     if (!user) {
       throw new NotFoundException('there is no user with that id');
     }
 
-    return await this.#usersRepository.delete(id);
+    await this.#usersRepository.delete(id);
+    return { message: 'user deleted' };
   }
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {

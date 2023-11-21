@@ -1,19 +1,12 @@
-import { CreateUserDTO } from '../../../users/dtos/create-user.dto';
 import { User } from '../../../users/entities/user.entity';
 
 export const usersServiceMock = {
-  find: jest.fn(() => {
-    return {
-      user: User 
-    };
-  }),
-  findOneBy: jest.fn(),
-  create: jest.fn((dto: CreateUserDTO) => {
-    return {
-      ...dto,
-      id: 1,
-    };
-  }),
-  delete: jest.fn(),
-  save: jest.fn(),
+  findAll: jest.fn().mockResolvedValue([User]),
+  findOneById: jest.fn().mockResolvedValue(User),
+  findOneByLogin: jest.fn().mockResolvedValue(User),
+  create: jest.fn().mockResolvedValue(User),
+  remove: jest.fn().mockResolvedValue({ message: 'user deleted' }),
+  updateRefreshToken: jest.fn().mockResolvedValue({ message: 'refreshed token has been updated' }),
+  updateVerificationKey: jest.fn().mockResolvedValue({ message: 'new verification key has been attached' }),
+  activate: jest.fn().mockResolvedValue({ message: 'user account activated' }),
 };

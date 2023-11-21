@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
-import { refreshTokenMock } from '../../utils/mocks/tokens/refresh-token.mock';
+import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { userRepositoryMock } from '../../utils/mocks/repositories/user.repository.mock';
 import { addressRepositoryMock } from '../../utils/mocks/repositories/address.repository.mock';
 import { Address } from '../entities/address.entity';
@@ -48,28 +48,34 @@ describe('UsersService', () => {
   describe('create', () => {
     it('should create a new user', async () => {
       await service.create(createUserDTOMock).then((entity) => expect(entity).toBe(User));
+      expect(usersRepository.create).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
     });
   });
 
   describe('findOneById', () => {
     it('should find an existing user', async () => {
       await service.findOneById(1).then((entity) => expect(entity).toBe(User));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should return null when trying to find non-existing user by fake id', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.findOneById(2).then((entity) => expect(entity).toBeNull());
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
   describe('findOneByLogin', () => {
     it('should find an existing user', async () => {
-      await service.findOneByLogin('test').then((entity) => expect(entity).toBe(User));
+      await service.findOneByLogin(createUserDTOMock.login).then((entity) => expect(entity).toBe(User));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should return null when trying to find non-existing user by fake login', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
-      await service.findOneByLogin('random').then((entity) => expect(entity).toBeNull());
+      await service.findOneByLogin(createUserDTOMock.login).then((entity) => expect(entity).toBeNull());
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
@@ -77,12 +83,14 @@ describe('UsersService', () => {
     it('should return an array with users', async () => {
       await service.findAll().then((entity) => {
         expect(entity).toStrictEqual([User]), expect(entity[0]).toBe(User);
+        expect(usersRepository.find).toHaveBeenCalled();
       });
     });
 
     it('should return an empty array with users when there are no users', async () => {
       jest.spyOn(usersRepository, 'find').mockResolvedValueOnce([]);
       await service.findAll().then((entity) => expect(entity[0]).toBeUndefined());
+      expect(usersRepository.find).toHaveBeenCalled();
     });
   });
 
@@ -90,32 +98,40 @@ describe('UsersService', () => {
     it('should update a refresh token', async () => {
       await service
         .create(createUserDTOMock)
-        .then(async () => await service.updateRefreshToken(1, refreshTokenMock).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated')));
+        .then(async () => await service.updateRefreshToken(1, tokenMock).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated')));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should update a refresh token when provided with null value', async () => {
       await service
         .create(createUserDTOMock)
         .then(async () => await service.updateRefreshToken(1, null).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated')));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException when there is no user with that provided id', async () => {
-      await service.updateRefreshToken(2, refreshTokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e).toHaveProperty('message', 'there is no user with that id');
+      await service.updateRefreshToken(2, tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
       });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
   describe('updateVerificationKey', () => {
     it('should update refresh token', async () => {
-      await service.updateVerificationKey('test', refreshTokenMock).then((result) => expect(result).toHaveProperty('message', 'new verification key has been attached'));
+      await service.updateVerificationKey('test', tokenMock).then((result) => expect(result).toHaveProperty('message', 'new verification key has been attached'));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when there is no user', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
-      await service.updateVerificationKey('test', refreshTokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e).toHaveProperty('message', 'there is no user with that id');
+      await service.updateVerificationKey('test', tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
       });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
@@ -123,16 +139,19 @@ describe('UsersService', () => {
     it('should activate an user', async () => {
       let user = new User();
       user.id = 1;
-      user.verificationKey = refreshTokenMock;
+      user.verificationKey = tokenMock;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
-      await service.activate(1, refreshTokenMock).then((result) => expect(result).toHaveProperty('message', 'user account activated'));
+      await service.activate(1, tokenMock).then((result) => expect(result).toHaveProperty('message', 'user account activated'));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when there is no user', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
-      await service.activate(1, refreshTokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e).toHaveProperty('message', 'there is no user with that id');
+      await service.activate(1, tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
       });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should throw BadRequestsException when user is already active', async () => {
@@ -140,26 +159,38 @@ describe('UsersService', () => {
       user.isActive = true;
       user.id = 1;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
-      await service.activate(1, refreshTokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(BadRequestException), expect(e).toHaveProperty('message', 'user already active');
+      await service.activate(1, tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(BadRequestException), expect(e.message).toBe('user already active');
       });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should throw UnauthorizedException when keys do not match', async () => {
       let user = new User();
       user.id = 1;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
-      await service.activate(1, refreshTokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(UnauthorizedException), expect(e).toHaveProperty('message', 'verification key does not match');
+      await service.activate(1, tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('verification key does not match');
       });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
+    it('should remove a user', async () => {
+      let user = new User();
+      user.id = 1;
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValue(user);
+      await service.remove(1).then((result) => expect(result).toHaveProperty('message', 'user deleted'));
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
+      expect(usersRepository.delete).toHaveBeenCalled();
+    });
+
     it('should throw a NotFoundException when trying to remove a non-existing user ', async () => {
       await service.remove(1).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e).toHaveProperty('message', 'there is no user with that id');
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
       });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 });

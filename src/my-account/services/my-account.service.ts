@@ -14,4 +14,10 @@ export class MyAccountService {
   deleteMyAccount(): any {
     // work in progress
   }
+
+  async activateMyAccount(id: number, verificationCode: string): Promise<any> {
+    id;
+    verificationCode;
+    // work in progress
+  }
 }

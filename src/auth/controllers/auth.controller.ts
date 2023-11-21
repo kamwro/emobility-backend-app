@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { CreateUserDTO } from '../../users/dtos/create-user.dto';
@@ -39,7 +39,7 @@ export class AuthController {
   @ApiTags('Authentication')
   @ApiBearerAuth('JWT-auth')
   @UseGuards(AuthGuard('jwt'))
-  @Post('logout')
+  @Get('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Successfully signed out' })
   async signOut(@GetCurrentUser('sub') userId: number): Promise<Message> {
@@ -50,10 +50,15 @@ export class AuthController {
   @ApiTags('Authentication')
   @ApiBearerAuth('JWT-auth')
   @UseGuards(AuthGuard('jwt-refresh'))
-  @Post('refresh')
+  @Get('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Successfully refreshed the session' })
   async refresh(@GetCurrentUser('sub') userId: number, @GetCurrentUser('refreshToken') refreshToken: string): Promise<Tokens> {
     return await this.#authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Patch('resend-confirmation-link')
+  async resendActivationLink(@GetCurrentUser('login') login: string): Promise<Message> {
+    return await this.#authService.sendConfirmationLink(login);
   }
 }
