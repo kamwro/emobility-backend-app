@@ -1,9 +1,11 @@
-import { User } from '../../../users/entities/user.entity';
+import { userMockImplementation } from "../implementations/user-return.mock.implementation";
+import { userArrayMockImplementation } from "../implementations/user-array-return.mock.implementation";
 
 export const userRepositoryMock = {
-  find: jest.fn().mockResolvedValue([User]),
-  findOneBy: jest.fn().mockResolvedValue(User),
-  create: jest.fn().mockResolvedValue(User),
-  save: jest.fn().mockResolvedValue(User),
+  find: jest.fn().mockImplementation(userArrayMockImplementation),
+  findOne: jest.fn().mockImplementation(userMockImplementation),
+  findOneBy: jest.fn().mockImplementation(userMockImplementation),
+  create: jest.fn().mockImplementation(userMockImplementation),
+  save: jest.fn().mockImplementation(userMockImplementation),
   delete: jest.fn(),
 };

@@ -51,7 +51,7 @@ describe('AuthService', () => {
   describe('registerUser', () => {
     it('should register an user', async () => {
       await service.registerUser(createUserDTOMock).then((result) => {
-        expect(result.info).toBe(User);
+        expect(result.info).toBeTruthy();
         expect(result.message).toBe('activation link has been sent');
       });
       expect(usersService.create).toHaveBeenCalled();
@@ -135,7 +135,7 @@ describe('AuthService', () => {
       let user = new User();
       user.hashedRefreshToken = tokenMock;
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
-      await service.signOut(1).then((result) => expect(result.message).toBe('refreshed token has been updated'));
+      await service.signOut(1).then((result) => expect(result.message).toBe('signed out'));
       expect(usersService.findOneById).toHaveBeenCalled();
       expect(usersService.updateRefreshToken).toHaveBeenCalled();
     });

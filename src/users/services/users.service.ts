@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { hash } from 'bcrypt';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { Address } from '../entities/address.entity';
 import { Message } from '../../utils/types/message.type';
+import { ChangeInfoDTO } from '../../my-account/dtos/change-info.dto';
 
 @Injectable()
 export class UsersService {
@@ -21,15 +23,15 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.#usersRepository.find();
+    return await this.#usersRepository.find({ relations: { address: true } });
   }
 
   async findOneById(id: number): Promise<User | null> {
-    return await this.#usersRepository.findOneBy({ id });
+    return await this.#usersRepository.findOne({ where: { id: id }, relations: { address: true } });
   }
 
   async findOneByLogin(login: string): Promise<User | null> {
-    return await this.#usersRepository.findOneBy({ login });
+    return await this.#usersRepository.findOne({ where: { login: login }, relations: { address: true } });
   }
 
   async remove(id: number): Promise<Message> {
@@ -37,7 +39,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('there is no user with that id');
     }
-
+    // TODO: email notification
     await this.#usersRepository.delete(id);
     return { message: 'user deleted' };
   }
@@ -45,6 +47,7 @@ export class UsersService {
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const address = this.#addressRepository.create(createUserDTO.address);
     const user = this.#usersRepository.create({ ...createUserDTO, address });
+    user.isActive = true; // TODO: delete this
     return await this.#usersRepository.save(user);
   }
 
@@ -69,19 +72,49 @@ export class UsersService {
     return { message: 'new verification key has been attached' };
   }
 
-  async activate(userId: number, verificationKey: string): Promise<Message> {
-    const user = await this.#usersRepository.findOneBy({ id: userId });
+  async activate(verificationKey: string): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ verificationKey: verificationKey });
     if (!user) {
-      throw new NotFoundException('there is no user with that id');
+      throw new NotFoundException('there is no user with that verification key');
     }
     if (user.isActive) {
       throw new BadRequestException('user already active');
     }
-    if (user.verificationKey !== verificationKey) {
-      throw new UnauthorizedException('verification key does not match');
-    }
+
     user.isActive = true;
     await this.#usersRepository.save(user);
+
     return { message: 'user account activated' };
+  }
+
+  async updatePassword(userId: number, newPlainPassword: string): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('there is no user with that id');
+    }
+    const newHashedPassword = await hash(newPlainPassword, 10);
+    user.password = newHashedPassword;
+
+    await this.#usersRepository.save(user);
+    // TODO: email notification
+    return { message: 'password has been successfully changed' };
+  }
+
+  async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('there is no user with that id');
+    }
+    user.firstName = infoToChange.firstName;
+    user.lastName = infoToChange.lastName;
+    user.address.country = infoToChange.address.country;
+    user.address.city = infoToChange.address.city;
+    user.address.street = infoToChange.address.street;
+    user.address.postalCode = infoToChange.address.postalCode;
+    user.address.buildingNumber = infoToChange.address.buildingNumber;
+
+    await this.#usersRepository.save(user);
+    // TODO: email notification
+    return { message: 'user data has been successfully changed' };
   }
 }

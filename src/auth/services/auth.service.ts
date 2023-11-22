@@ -10,7 +10,6 @@ import { Tokens } from '../../utils/types/tokens.type';
 import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
 import { Message } from '../../utils/types/message.type';
 import { JwtPayload } from '../../utils/types/jwt-payload.type';
-import { UserDTO } from '../../users/dtos/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +33,7 @@ export class AuthService {
     const verificationKey = await this.getVerificationToken(user.login);
     await this.#usersService.updateVerificationKey(user.login, verificationKey);
     // TODO: sending an email with verification link
-    const userInfo: UserDTO = {
+    const userInfo = {
       login: user.login,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -72,7 +71,7 @@ export class AuthService {
     const payload = { sub: user.id, login: user.login };
     const tokens = await this.getTokens(payload);
 
-    const hashedRefreshToken = tokens.refreshToken;
+    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
     await this.#usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
     return tokens;
@@ -83,7 +82,8 @@ export class AuthService {
     if (!user?.hashedRefreshToken) {
       throw new NotFoundException('user is not logged in');
     }
-    return await this.#usersService.updateRefreshToken(userId, null);
+    await this.#usersService.updateRefreshToken(userId, null);
+    return { message: 'signed out' };
   }
 
   async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
@@ -108,7 +108,7 @@ export class AuthService {
     const payload = { sub: userId, login: user.login };
     const tokens = await this.getTokens(payload);
 
-    const hashedRefreshToken = tokens.refreshToken;
+    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
     await this.#usersService.updateRefreshToken(userId, hashedRefreshToken);
 
     return tokens;
