@@ -1,6 +1,6 @@
-import { User } from '../../users/entities/user.entity';
+import { UserDTO } from "../../users/dtos/user.dto";
 
 export type UserRegisterInfo = {
-  info: User;
+  info: UserDTO;
   message: string;
 };

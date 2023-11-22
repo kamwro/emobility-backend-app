@@ -10,6 +10,7 @@ import { Tokens } from '../../utils/types/tokens.type';
 import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
 import { Message } from '../../utils/types/message.type';
 import { JwtPayload } from '../../utils/types/jwt-payload.type';
+import { UserDTO } from '../../users/dtos/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,20 @@ export class AuthService {
     const verificationKey = await this.getVerificationToken(user.login);
     await this.#usersService.updateVerificationKey(user.login, verificationKey);
     // TODO: sending an email with verification link
-    return { info: user, message: 'activation link has been sent' };
+    const userInfo: UserDTO = {
+      login: user.login,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      birthday: user.birthday,
+      address: {
+        country: user.address.country,
+        city: user.address.city,
+        street: user.address.street,
+        postalCode: user.address.postalCode,
+        buildingNumber: user.address.buildingNumber,
+      },
+    }; // need to find a better way to transfer data from user to a UserDTO object
+    return { info: userInfo, message: 'activation link has been sent' };
   }
 
   async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens> {

@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { usersServiceMock } from '../../utils/mocks/services/users.service.mock';
 import { jwtServiceMock } from '../../utils/mocks/services/jwt.service.mock';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
+import { userSignInDTOMock } from '../../utils/mocks/dtos/user-sign-in.dto.mock';
 import { User } from '../../users/entities/user.entity';
 import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { hash } from 'bcrypt';
@@ -73,12 +74,12 @@ describe('AuthService', () => {
   describe('signIn', () => {
     it('should sign in an active user', async () => {
       let user = new User();
-      user.login = createUserDTOMock.login;
+      user.login = userSignInDTOMock.login;
       user.isActive = true;
-      const plainPassword = createUserDTOMock.password;
+      const plainPassword = userSignInDTOMock.password;
       user.password = await hash(plainPassword, 10);
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
-      await service.signIn(createUserDTOMock).then((entity) => {
+      await service.signIn(userSignInDTOMock).then((entity) => {
         expect(entity).toHaveProperty('accessToken');
         expect(entity.refreshToken).toBe(tokenMock);
       });
@@ -89,7 +90,7 @@ describe('AuthService', () => {
 
     it('should throw an NotFoundException when cannot find the user', async () => {
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(null);
-      await service.signIn(createUserDTOMock).catch((e) => {
+      await service.signIn(userSignInDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(NotFoundException);
         expect(e.message).toBe('user with that login does not exist');
       });
@@ -97,7 +98,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException when user is not active', async () => {
-      await service.signIn(createUserDTOMock).catch((e) => {
+      await service.signIn(userSignInDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
         expect(e.message).toBe('user not active');
       });
@@ -109,7 +110,7 @@ describe('AuthService', () => {
       user.hashedRefreshToken = tokenMock;
       user.isActive = true;
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
-      await service.signIn(createUserDTOMock).catch((e) => {
+      await service.signIn(userSignInDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
         expect(e.message).toBe('user already signed in');
       });
@@ -121,7 +122,7 @@ describe('AuthService', () => {
       user.password = '123';
       user.isActive = true;
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
-      await service.signIn(createUserDTOMock).catch((e) => {
+      await service.signIn(userSignInDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
         expect(e.message).toBe('invalid password');
       });
