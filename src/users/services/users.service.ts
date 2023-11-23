@@ -30,6 +30,7 @@ export class UsersService {
     return await this.#usersRepository.findOne({ where: { id: id }, relations: { address: true } });
   }
 
+
   async findOneByLogin(login: string): Promise<User | null> {
     return await this.#usersRepository.findOne({ where: { login: login }, relations: { address: true } });
   }
