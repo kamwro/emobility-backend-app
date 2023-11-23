@@ -1,6 +1,6 @@
 FROM node:lts-bookworm-slim
 
-WORKDIR /emobility-backend-app
+WORKDIR /src
 
 COPY package*.json ./
 

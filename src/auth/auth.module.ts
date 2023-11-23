@@ -2,10 +2,14 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { UsersModule } from '../users/users.module';
+import { JwtModule } from '@nestjs/jwt/dist';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { AccessTokenStrategy } from './strategies/access-token.strategy';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, JwtModule.register({ global: true })],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, RefreshTokenStrategy, AccessTokenStrategy],
+  exports: [UsersModule],
 })
 export class AuthModule {}

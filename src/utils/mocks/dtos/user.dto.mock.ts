@@ -1,9 +1,8 @@
-export const createUserDTOMock = {
+export const userDTOMock = {
+  login: 'test@test.test',
   firstName: 'test',
   lastName: 'test',
   birthday: '2000-01-01',
-  login: 'test@test.test',
-  password: 'T3s!%$#',
   address: {
     country: 'test',
     city: 'test',

@@ -32,11 +32,35 @@ POSTGRES_NAME=test
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 
-# API 
+# API
 NEST_API_PORT=3000
 
-# Dbeaver - optional 
+# Tokens
+# Secret - 32 char secret code for JWT token. You can use something like $ openssl rand -hex 32 to generate it
+ACCESS_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+ACCESS_TOKEN_EXPIRES_IN_MIN = 5
+
+REFRESH_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+REFRESH_TOKEN_EXPIRES_IN_DAY = 7
+
+# Token for confirmation link
+VERIFICATION_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+VERIFICATION_TOKEN_EXPIRES_IN_SEC = 120
+
+
+# Dbeaver - optional
 POSTGRES_DBEAVER_PORT=5433
+
+
+# Throttler - optional
+THROTTLE_TTL_SHORT = 1000
+THROTTLE_LIMIT_SHORT = 3
+
+THROTTLE_TTL_MEDIUM = 10000
+THROTTLE_LIMIT_MEDIUM = 20
+
+THROTTLE_TTL_LONG = 60000
+THROTTLE_LIMIT_LONG = 100
 ```
 
 You should also change the create-db.sql file accordingly if you changed database name.

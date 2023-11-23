@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
-import { AuthSubscriber } from '../auth/subscribers/auth-subscriber';
 import { Address } from '../users/entities/address.entity';
 
 @Module({
@@ -17,7 +16,7 @@ import { Address } from '../users/entities/address.entity';
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_NAME'),
         entities: [User, Address],
-        subscribers: [AuthSubscriber],
+        subscribers: [],
         synchronize: true,
         // TODO: introduce migrations for production
       }),

@@ -24,6 +24,14 @@ export class User extends AbstractEntity {
   @Column({ default: false })
   public isActive: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  @Exclude()
+  public hashedRefreshToken: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  @Exclude()
+  public verificationKey: string | null;
+
   @ManyToOne(() => Address, (address: Address) => address.user, { cascade: true })
   @JoinTable()
   public address: Address;

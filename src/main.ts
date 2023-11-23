@@ -1,10 +1,10 @@
 import 'reflect-metadata';
+import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './utils/configs/swagger-config';
 import { AppModule } from './app/app.module';
-import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -21,8 +21,7 @@ async function bootstrap() {
     }),
   );
 
-  const reflector = app.get(Reflector);
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
+  app.use(helmet());
 
   const configService = new ConfigService();
 

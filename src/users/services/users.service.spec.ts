@@ -2,12 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TypeORMError } from 'typeorm';
+import { Repository } from 'typeorm';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
+import { tokenMock } from '../../utils/mocks/tokens/token.mock';
+import { userRepositoryMock } from '../../utils/mocks/repositories/user.repository.mock';
+import { addressRepositoryMock } from '../../utils/mocks/repositories/address.repository.mock';
+import { changeInfoDTOMock } from '../../utils/mocks/dtos/change-info.dto.mock';
 import { Address } from '../entities/address.entity';
 
 describe('UsersService', () => {
   let service: UsersService;
+  let usersRepository: Repository<User>;
   const userRepositoryToken = getRepositoryToken(User);
   const addressRepositoryToken = getRepositoryToken(Address);
 
@@ -17,72 +23,195 @@ describe('UsersService', () => {
         UsersService,
         {
           provide: userRepositoryToken,
-          useValue: {
-            find: jest.fn(),
-            findOneBy: jest.fn(),
-            create: jest.fn(),
-            delete: jest.fn(),
-            save: jest.fn(),
-          },
+          useValue: userRepositoryMock,
         },
         {
           provide: addressRepositoryToken,
-          useValue: {
-            create: jest.fn(),
-          },
+          useValue: addressRepositoryMock,
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
+    usersRepository = module.get<Repository<User>>(userRepositoryToken);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('Methods', () => {
-    describe('create + findOne', () => {
-      it('should create a new user and find it', async () => {
-        service.create(createUserDTOMock);
-        const result = service.findOne(1);
-        expect(result).not.toBeFalsy();
+  describe('providers', () => {
+    it('users repository should be defined', () => {
+      expect(usersRepository).toBeDefined();
+    });
+  });
+
+  describe('create', () => {
+    it('should create a new user', async () => {
+      await service.create(createUserDTOMock).then((entity) => expect(entity).toBeInstanceOf(User));
+      expect(usersRepository.create).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('findOneById', () => {
+    it('should find an existing user', async () => {
+      await service.findOneById(1).then((entity) => {
+        expect(entity).toBeInstanceOf(User), expect(entity?.address).toBeInstanceOf(Address);
       });
+      expect(usersRepository.findOne).toHaveBeenCalled();
     });
 
-    describe('create', () => {
-      it('should not create a new user with the same login, instead throw TypeORMError with the custom message', async () => {
-        service.create(createUserDTOMock);
-        try {
-          service.create(createUserDTOMock);
-        } catch (e) {
-          expect(e).toBeInstanceOf(TypeORMError);
-          expect(e).toHaveProperty('something went wrong');
-        }
+    it('should return null when trying to find non-existing user by fake id', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      await service.findOneById(2).then((entity) => expect(entity).toBeNull());
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('findOneByLogin', () => {
+    it('should find an existing user', async () => {
+      await service.findOneByLogin(createUserDTOMock.login).then((entity) => {
+        expect(entity).toBeInstanceOf(User), expect(entity?.address).toBeInstanceOf(Address);
       });
+      expect(usersRepository.findOne).toHaveBeenCalled();
     });
 
-    describe('findOne', () => {
-      it('should return null when trying to find non-existing user', () => {
-        const result = service.findOne(2);
-        expect(result).toBeInstanceOf(Promise<null>);
+    it('should return null when trying to find non-existing user by fake login', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      await service.findOneByLogin(createUserDTOMock.login).then((entity) => expect(entity).toBeNull());
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array with users', async () => {
+      await service.findAll().then((entity) => {
+        expect(entity).toBeTruthy(), expect(entity[0]).toBeInstanceOf(User), expect(entity[0].address).toBeInstanceOf(Address);
       });
+      expect(usersRepository.find).toHaveBeenCalled();
     });
 
-    describe('findAll', () => {
-      it('should return an array with users', () => {
-        const result = service.findAll();
-        expect(result).toBeInstanceOf(Promise<User[]>);
-      });
+    it('should return an empty array with users when there are no users', async () => {
+      jest.spyOn(usersRepository, 'find').mockResolvedValueOnce([]);
+      await service.findAll().then((entity) => expect(entity[0]).toBeUndefined());
+      expect(usersRepository.find).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateRefreshToken', () => {
+    it('should update a refresh token', async () => {
+      await service.updateRefreshToken(1, tokenMock).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    describe('remove', () => {
-      it('should remove an existing user', async () => {
-        service.create(createUserDTOMock);
-        service.remove(1);
-        const result = service.findOne(1);
-        expect(result).toBeInstanceOf(Promise<null>);
+    it('should update a refresh token when provided with null value', async () => {
+      await service.updateRefreshToken(1, null).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw a NotFoundException when there is no user with that provided id', async () => {
+      await service.updateRefreshToken(2, tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
       });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateVerificationKey', () => {
+    it('should update refresh token', async () => {
+      await service.updateVerificationKey('test', tokenMock).then((result) => expect(result).toHaveProperty('message', 'new verification key has been attached'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when there is no user', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      await service.updateVerificationKey('test', tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('activate', () => {
+    it('should activate an user', async () => {
+      let user = new User();
+      user.verificationKey = tokenMock;
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+      await service.activate(tokenMock).then((result) => expect(result).toHaveProperty('message', 'user account activated'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when there is no user', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      await service.activate(tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that verification key');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestsException when user is already active', async () => {
+      let user = new User();
+      user.isActive = true;
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+      await service.activate(tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(BadRequestException), expect(e.message).toBe('user already active');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a user', async () => {
+      let user = new User();
+      user.id = 1;
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(user);
+      await service.remove(1).then((result) => expect(result).toHaveProperty('message', 'user deleted'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.delete).toHaveBeenCalled();
+    });
+
+    it('should throw a NotFoundException when trying to remove a non-existing user ', async () => {
+      await service.remove(1).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('should update a password', async () => {
+      await service.updatePassword(1, createUserDTOMock.password).then((response) => expect(response).toHaveProperty('message', 'password has been successfully changed'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw a NotFoundException when there is no user with that provided id', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      await service.updatePassword(1, createUserDTOMock.password).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateInfo', () => {
+    it('should update an user info', async () => {
+      await service.updateInfo(1, changeInfoDTOMock).then((response) => expect(response).toHaveProperty('message', 'user data has been successfully changed'));
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw a NotFoundException when there is no user with that provided id', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      await service.updateInfo(1, changeInfoDTOMock).catch((e) => {
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
     });
   });
 });
