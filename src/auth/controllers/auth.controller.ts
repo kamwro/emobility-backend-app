@@ -1,13 +1,16 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiOkResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
-import { AuthService } from '../services';
-import { CreateAuthDTO } from '../dtos';
-import { User } from '../../users/entities';
-import { CreateUserDTO, UserDTO } from '../../users/dtos';
+import { AuthService } from '../services/auth.service';
+import { User } from '../../users/entities/user.entity';
+import { UserDTO } from '../../users/dtos/user.dto';
+import { CreateUserDTO } from '../../users/dtos/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly _authService: AuthService) {}
+  readonly #authService: AuthService;
+  constructor(authService: AuthService) {
+    this.#authService = authService;
+  }
 
   @ApiOperation({ summary: 'Register an account.' })
   @ApiTags('Account Creation')
@@ -16,21 +19,20 @@ export class AuthController {
   @ApiOkResponse({ type: UserDTO, description: 'Successfully created an account' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error - email is probably already taken' })
   async register(@Body() body: CreateUserDTO): Promise<User | undefined> {
-    return await this._authService.registerUser(body);
+    return await this.#authService.registerUser(body);
   }
 
   @ApiOperation({ summary: 'Login to receive an access token.' })
   @ApiTags('Authentication')
   @Post('log-in')
-  async logIn(@Body() body: CreateAuthDTO): Promise<any> {
-    body;
-    await this._authService.logIn();
+  async logIn(): Promise<any> {
+    await this.#authService.logIn();
   }
 
   @ApiOperation({ summary: 'Logout from the current session.' })
   @ApiTags('Authentication')
   @Post('log-out')
   async logOut(): Promise<any> {
-    await this._authService.logOut();
+    await this.#authService.logOut();
   }
 }
