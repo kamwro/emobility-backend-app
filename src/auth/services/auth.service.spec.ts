@@ -6,23 +6,28 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { usersServiceMock } from '../../utils/mocks/services/users.service.mock';
 import { jwtServiceMock } from '../../utils/mocks/services/jwt.service.mock';
+import { emailServiceMock } from '../../utils/mocks/services/email.service.mock';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
 import { userSignInDTOMock } from '../../utils/mocks/dtos/user-sign-in.dto.mock';
 import { User } from '../../users/entities/user.entity';
 import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { hash } from 'bcrypt';
+import { EmailService } from '../../email/services/email.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
   let usersService: UsersService;
+  let emailService: EmailService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, JwtService, ConfigService, UsersService],
+      providers: [AuthService, JwtService, ConfigService, UsersService, EmailService],
     })
       .overrideProvider(UsersService)
       .useValue(usersServiceMock)
+      .overrideProvider(EmailService)
+      .useValue(emailServiceMock)
       .overrideProvider(JwtService)
       .useValue(jwtServiceMock)
       .overrideProvider(ConfigService)
@@ -30,6 +35,7 @@ describe('AuthService', () => {
       .compile();
 
     service = module.get<AuthService>(AuthService);
+    emailService = module.get<EmailService>(EmailService);
     usersService = module.get<UsersService>(UsersService);
     jwtService = module.get<JwtService>(JwtService);
   });
@@ -56,6 +62,7 @@ describe('AuthService', () => {
       });
       expect(usersService.create).toHaveBeenCalled();
       expect(usersService.updateVerificationKey).toHaveBeenCalled();
+      expect(emailService.sendEmail).toHaveBeenCalled();
       expect(jwtService.signAsync).toHaveBeenCalled();
     });
 
@@ -233,6 +240,7 @@ describe('AuthService', () => {
       });
       expect(jwtService.signAsync).toHaveBeenCalled();
       expect(usersService.updateVerificationKey).toHaveBeenCalled();
+      expect(emailService.sendEmail).toHaveBeenCalled();
     });
   });
 });

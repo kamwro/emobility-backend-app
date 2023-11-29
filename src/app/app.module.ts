@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '../../env.validation';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     UsersModule,
     DbModule,
+    EmailModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validate,

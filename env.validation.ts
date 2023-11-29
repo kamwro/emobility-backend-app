@@ -46,6 +46,30 @@ class EnvironmentVariables {
   @IsNotEmpty()
   REFRESH_TOKEN_EXPIRES_IN_DAY: number = 7;
 
+  @IsString()
+  @MinLength(32)
+  VERIFICATION_JWT_SECRET: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  VERIFICATION_TOKEN_EXPIRES_IN_SEC: number = 5;
+
+  @IsString()
+  @IsNotEmpty()
+  EMAIL_HOST: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  EMAIL_PORT: number = 587;
+
+  @IsString()
+  @IsNotEmpty()
+  EMAIL_USER: string;
+
+  @IsString()
+  @IsNotEmpty()
+  EMAIL_PASSWORD: string;
+
   @IsNumber()
   @IsNotEmpty()
   THROTTLE_TTL_SHORT: number = 1000;
