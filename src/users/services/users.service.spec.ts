@@ -140,28 +140,38 @@ describe('UsersService', () => {
     it('should activate an user', async () => {
       let user = new User();
       user.verificationKey = tokenMock;
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).then((result) => expect(result).toHaveProperty('message', 'user account activated'));
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when there is no user', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.activate(tokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that verification key');
+        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('user not found');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when verification key does not match', async () => {
+      let user = new User();
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
+      await service.activate(tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(BadRequestException), expect(e.message).toBe('verification code is not valid');
+      });
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should throw BadRequestsException when user is already active', async () => {
       let user = new User();
       user.isActive = true;
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+      user.verificationKey = tokenMock;
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).catch((e) => {
         expect(e).toBeInstanceOf(BadRequestException), expect(e.message).toBe('user already active');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 

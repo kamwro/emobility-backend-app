@@ -4,6 +4,7 @@ export const createUserDTOMock = {
   birthday: '2000-01-01',
   login: 'test@test.test',
   password: 'T3s!%$#',
+  verificationKey: 'test',
   address: {
     country: 'test',
     city: 'test',

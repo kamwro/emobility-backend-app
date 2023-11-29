@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -30,7 +30,6 @@ export class UsersService {
     return await this.#usersRepository.findOne({ where: { id: id }, relations: { address: true } });
   }
 
-
   async findOneByLogin(login: string): Promise<User | null> {
     return await this.#usersRepository.findOne({ where: { login: login }, relations: { address: true } });
   }
@@ -40,7 +39,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('there is no user with that id');
     }
-    // TODO: email notification
     await this.#usersRepository.delete(id);
     return { message: 'user deleted' };
   }
@@ -48,7 +46,6 @@ export class UsersService {
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const address = this.#addressRepository.create(createUserDTO.address);
     const user = this.#usersRepository.create({ ...createUserDTO, address });
-    user.isActive = true; // TODO: delete this
     return await this.#usersRepository.save(user);
   }
 
@@ -73,11 +70,16 @@ export class UsersService {
     return { message: 'new verification key has been attached' };
   }
 
-  async activate(verificationKey: string): Promise<Message> {
-    const user = await this.#usersRepository.findOneBy({ verificationKey: verificationKey });
+  async activate(verificationCode: string): Promise<Message> {
+    const user = await this.#usersRepository.findOneBy({ verificationKey: verificationCode });
     if (!user) {
-      throw new NotFoundException('there is no user with that verification key');
+      throw new NotFoundException('user not found');
     }
+
+    if (user.verificationKey !== verificationCode) {
+      throw new BadRequestException('verification code is not valid');
+    }
+
     if (user.isActive) {
       throw new BadRequestException('user already active');
     }
@@ -97,12 +99,11 @@ export class UsersService {
     user.password = newHashedPassword;
 
     await this.#usersRepository.save(user);
-    // TODO: email notification
     return { message: 'password has been successfully changed' };
   }
 
   async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message> {
-    const user = await this.#usersRepository.findOneBy({ id: userId });
+    const user = await this.findOneById(userId);
     if (!user) {
       throw new NotFoundException('there is no user with that id');
     }
@@ -115,7 +116,6 @@ export class UsersService {
     user.address.buildingNumber = infoToChange.address.buildingNumber;
 
     await this.#usersRepository.save(user);
-    // TODO: email notification
     return { message: 'user data has been successfully changed' };
   }
 }

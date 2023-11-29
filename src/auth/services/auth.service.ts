@@ -10,14 +10,17 @@ import { Tokens } from '../../utils/types/tokens.type';
 import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
 import { Message } from '../../utils/types/message.type';
 import { JwtPayload } from '../../utils/types/jwt-payload.type';
+import { EmailService } from '../../email/services/email.service';
 
 @Injectable()
 export class AuthService {
   readonly #usersService: UsersService;
+  readonly #emailService: EmailService;
   readonly #jwtService: JwtService;
   readonly #configService: ConfigService;
-  constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService) {
+  constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, emailService: EmailService) {
     this.#usersService = usersService;
+    this.#emailService = emailService;
     this.#jwtService = jwtService;
     this.#configService = configService;
   }
@@ -30,9 +33,8 @@ export class AuthService {
     } catch (e) {
       throw new BadRequestException('email already taken');
     }
-    const verificationKey = await this.getVerificationToken(user.login);
-    await this.#usersService.updateVerificationKey(user.login, verificationKey);
-    // TODO: sending an email with verification link
+    await this.sendConfirmationLink(user.login);
+
     const userInfo = {
       login: user.login,
       firstName: user.firstName,
@@ -46,6 +48,7 @@ export class AuthService {
         buildingNumber: user.address.buildingNumber,
       },
     }; // need to find a better way to transfer data from user to a UserDTO object
+
     return { info: userInfo, message: 'activation link has been sent' };
   }
 
@@ -143,7 +146,12 @@ export class AuthService {
   async sendConfirmationLink(userLogin: string): Promise<Message> {
     const verificationKey = await this.getVerificationToken(userLogin);
     await this.#usersService.updateVerificationKey(userLogin, verificationKey);
-    // send email
+    await this.#emailService.sendEmail({
+      recipient: userLogin,
+      subject: 'Your Confirmation Link',
+      body: `http://localhost:${this.#configService.get('NEST_API_PORT')}/my-account/activate/${verificationKey}`,
+    });
     return { message: 'confirmation link has been send' };
   }
+  
 }
