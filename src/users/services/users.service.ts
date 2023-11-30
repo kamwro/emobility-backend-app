@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -72,12 +72,8 @@ export class UsersService {
 
   async activate(verificationCode: string): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ verificationKey: verificationCode });
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
-
-    if (user.verificationKey !== verificationCode) {
-      throw new BadRequestException('verification code is not valid');
+    if (!user || user.verificationKey !== verificationCode) {
+      throw new UnauthorizedException('access denied');
     }
 
     if (user.isActive) {
@@ -93,7 +89,7 @@ export class UsersService {
   async updatePassword(userId: number, newPlainPassword: string): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
-      throw new NotFoundException('there is no user with that id');
+      throw new UnauthorizedException('access denied');
     }
     const newHashedPassword = await hash(newPlainPassword, 10);
     user.password = newHashedPassword;
@@ -105,7 +101,7 @@ export class UsersService {
   async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message> {
     const user = await this.findOneById(userId);
     if (!user) {
-      throw new NotFoundException('there is no user with that id');
+      throw new UnauthorizedException('access denied');
     }
     user.firstName = infoToChange.firstName;
     user.lastName = infoToChange.lastName;

@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
 import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { userRepositoryMock } from '../../utils/mocks/repositories/user.repository.mock';
@@ -146,19 +146,19 @@ describe('UsersService', () => {
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException when there is no user', async () => {
+    it('should throw UnauthorizedException when there is no user', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.activate(tokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('user not found');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException when verification key does not match', async () => {
+    it('should throw UnauthorizedException when verification key does not match', async () => {
       let user = new User();
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(BadRequestException), expect(e.message).toBe('verification code is not valid');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -200,10 +200,10 @@ describe('UsersService', () => {
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw a NotFoundException when there is no user with that provided id', async () => {
+    it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
       jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
       await service.updatePassword(1, createUserDTOMock.password).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOne).toHaveBeenCalled();
     });
@@ -216,10 +216,10 @@ describe('UsersService', () => {
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw a NotFoundException when there is no user with that provided id', async () => {
+    it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
       jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
       await service.updateInfo(1, changeInfoDTOMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOne).toHaveBeenCalled();
     });

@@ -68,7 +68,7 @@ describe('AuthService', () => {
 
     it('should throw an BadRequestException when trying to add user with email already registered', async () => {
       jest.spyOn(usersService, 'create').mockImplementationOnce(() => {
-        throw new Error(); // is this correct?
+        throw new Error();
       });
       await service.registerUser(createUserDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(BadRequestException);
@@ -95,11 +95,11 @@ describe('AuthService', () => {
       expect(usersService.updateRefreshToken).toHaveBeenCalled();
     });
 
-    it('should throw an NotFoundException when cannot find the user', async () => {
+    it('should throw an UnauthorizedException when cannot find the user with provided login', async () => {
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(null);
       await service.signIn(userSignInDTOMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException);
-        expect(e.message).toBe('user with that login does not exist');
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneByLogin).toHaveBeenCalled();
     });
@@ -107,7 +107,7 @@ describe('AuthService', () => {
     it('should throw an UnauthorizedException when user is not active', async () => {
       await service.signIn(userSignInDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
-        expect(e.message).toBe('user not active');
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneByLogin).toHaveBeenCalled();
     });
@@ -131,7 +131,7 @@ describe('AuthService', () => {
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
       await service.signIn(userSignInDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
-        expect(e.message).toBe('invalid password');
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneByLogin).toHaveBeenCalled();
     });
@@ -173,11 +173,11 @@ describe('AuthService', () => {
       expect(usersService.updateRefreshToken).toHaveBeenCalled();
     });
 
-    it('should throw an NotFoundException when user is not found', async () => {
+    it('should throw an UnauthorizedException when user is not found', async () => {
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(null);
       await service.refreshTokens(1, tokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException);
-        expect(e.message).toBe('user not found');
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneById).toHaveBeenCalled();
     });
@@ -185,7 +185,7 @@ describe('AuthService', () => {
     it('should throw an UnauthorizedException when user is not active', async () => {
       await service.refreshTokens(1, tokenMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
-        expect(e.message).toBe('user not active');
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneById).toHaveBeenCalled();
     });
@@ -196,7 +196,7 @@ describe('AuthService', () => {
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.refreshTokens(1, tokenMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
-        expect(e.message).toBe('no refresh token active');
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneById).toHaveBeenCalled();
     });
@@ -208,7 +208,7 @@ describe('AuthService', () => {
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.refreshTokens(1, 'fakeToken').catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
-        expect(e.message).toBe('tokens do not match');
+        expect(e.message).toBe('access denied');
       });
       expect(usersService.findOneById).toHaveBeenCalled();
     });
