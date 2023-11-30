@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
 import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { userRepositoryMock } from '../../utils/mocks/repositories/user.repository.mock';
@@ -112,9 +112,9 @@ describe('UsersService', () => {
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw a NotFoundException when there is no user with that provided id', async () => {
+    it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
       await service.updateRefreshToken(2, tokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOne).toHaveBeenCalled();
     });
@@ -127,10 +127,10 @@ describe('UsersService', () => {
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException when there is no user', async () => {
+    it('should throw UnauthorizedException when there is no user', async () => {
       jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
       await service.updateVerificationKey('test', tokenMock).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOne).toHaveBeenCalled();
     });
@@ -185,9 +185,9 @@ describe('UsersService', () => {
       expect(usersRepository.delete).toHaveBeenCalled();
     });
 
-    it('should throw a NotFoundException when trying to remove a non-existing user ', async () => {
+    it('should throw a UnauthorizedException when trying to remove a non-existing user ', async () => {
       await service.remove(1).catch((e) => {
-        expect(e).toBeInstanceOf(NotFoundException), expect(e.message).toBe('there is no user with that id');
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOne).toHaveBeenCalled();
     });

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -37,7 +37,7 @@ export class UsersService {
   async remove(id: number): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ id: id });
     if (!user) {
-      throw new NotFoundException('there is no user with that id');
+      throw new UnauthorizedException('access denied');
     }
     await this.#usersRepository.delete(id);
     return { message: 'user deleted' };
@@ -52,7 +52,7 @@ export class UsersService {
   async updateRefreshToken(userId: number, hash: string | null): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
-      throw new NotFoundException('there is no user with that id');
+      throw new UnauthorizedException('access denied');
     }
 
     user.hashedRefreshToken = hash;
@@ -63,7 +63,7 @@ export class UsersService {
   async updateVerificationKey(userLogin: string, verificationKey: string): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ login: userLogin });
     if (!user) {
-      throw new NotFoundException('there is no user with that id');
+      throw new UnauthorizedException('access denied');
     }
     user.verificationKey = verificationKey;
     await this.#usersRepository.save(user);
