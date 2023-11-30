@@ -1,13 +1,13 @@
 import { Controller, Get, Patch, Delete, Param, Res, Body } from '@nestjs/common';
 import { ApiTags, ApiExcludeEndpoint, ApiOperation, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
-import { GetCurrentUser } from '../../utils/decorators/get-current-user.decorator';
+import { GetCurrentUser } from '../utils/decorators/get-current-user.decorator';
 import { Response } from 'express';
-import { UsersService } from '../../users/services/users.service';
+import { UsersService } from '../users/users.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ChangePasswordDTO } from '../dtos/change-password.dto';
-import { ChangeInfoDTO } from '../dtos/change-info.dto';
-import { EmailService } from '../../email/services/email.service';
+import { ChangePasswordDTO } from './dtos/change-password.dto';
+import { ChangeInfoDTO } from './dtos/change-info.dto';
+import { EmailService } from '../email/email.service';
 
 @Controller('my-account')
 @ApiTags('My Account')

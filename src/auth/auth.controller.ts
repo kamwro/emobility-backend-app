@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, UseGuards, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiCreatedResponse, ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthService } from '../services/auth.service';
-import { CreateUserDTO } from '../../users/dtos/create-user.dto';
-import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
+import { AuthService } from './auth.service';
+import { CreateUserDTO } from '../users/dtos/create-user.dto';
+import { UserSignInDTO } from '../users/dtos/user-sign-in.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetCurrentUser } from '../../utils/decorators/get-current-user.decorator';
+import { GetCurrentUser } from '../utils/decorators/get-current-user.decorator';
 import { Response } from 'express';
 
 @Controller('auth')
@@ -69,8 +69,6 @@ export class AuthController {
       return res.status(400);
     }
   }
-
-  
 
   // @Patch('resend-confirmation-link')
   // async resendActivationLink(@GetCurrentUser('login') login: string): Promise<Message> {

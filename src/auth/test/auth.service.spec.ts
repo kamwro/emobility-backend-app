@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { UsersService } from '../../users/services/users.service';
+import { AuthService } from '../auth.service';
+import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { usersServiceMock } from '../../utils/mocks/services/users.service.mock';
@@ -12,7 +12,7 @@ import { userSignInDTOMock } from '../../utils/mocks/dtos/user-sign-in.dto.mock'
 import { User } from '../../users/entities/user.entity';
 import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { hash } from 'bcrypt';
-import { EmailService } from '../../email/services/email.service';
+import { EmailService } from '../../email/email.service';
 
 describe('AuthService', () => {
   let service: AuthService;

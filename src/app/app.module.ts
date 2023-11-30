@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './controllers/app.controller';
+import { AppController } from './app.controller';
 import { MyAccountModule } from '../my-account/my-account.module';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';

@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { User } from '../../users/entities/user.entity';
-import { UsersService } from '../../users/services/users.service';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CreateUserDTO } from '../../users/dtos/create-user.dto';
+import { CreateUserDTO } from '../users/dtos/create-user.dto';
 import { hash, compare } from 'bcrypt';
-import { UserSignInDTO } from '../../users/dtos/user-sign-in.dto';
-import { Tokens } from '../../utils/types/tokens.type';
-import { UserRegisterInfo } from '../../utils/types/user-register-info.type';
-import { Message } from '../../utils/types/message.type';
-import { JwtPayload } from '../../utils/types/jwt-payload.type';
-import { EmailService } from '../../email/services/email.service';
+import { UserSignInDTO } from '../users/dtos/user-sign-in.dto';
+import { Tokens } from '../utils/types/tokens.type';
+import { UserRegisterInfo } from '../utils/types/user-register-info.type';
+import { Message } from '../utils/types/message.type';
+import { JwtPayload } from '../utils/types/jwt-payload.type';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
