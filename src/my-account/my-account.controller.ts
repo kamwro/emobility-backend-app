@@ -1,5 +1,5 @@
-import { Controller, Get, Patch, Delete, Param, Res, Body } from '@nestjs/common';
-import { ApiTags, ApiExcludeEndpoint, ApiOperation, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { Controller, Get, Patch, Delete, Param, Res, Body, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiExcludeEndpoint, ApiOperation, ApiBearerAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { GetCurrentUser } from '../utils/decorators/get-current-user.decorator';
 import { Response } from 'express';
 import { UsersService } from '../users/users.service';
@@ -24,21 +24,21 @@ export class MyAccountController {
   @UseGuards(AuthGuard('jwt'))
   @Get('')
   @ApiOkResponse({ description: 'Successfully got an account info' })
+  @ApiUnauthorizedResponse({ description: 'Access denied' })
   async getMyInfo(@GetCurrentUser('sub') userId: number, @Res() res: Response): Promise<Response> {
     const user = await this.#usersService.findOneById(userId);
-    if (user) {
-      return res.status(200).json({
-        info: {
-          login: user.login,
-          'first name': user.firstName,
-          'last name': user.lastName,
-          birthday: user.birthday,
-          address: `${user.street} ${user.buildingNumber}, ${user.postalCode} ${user.city}, ${user.country}`,
-        },
-      });
-    } else {
-      return res.status(404);
+    if (!user) {
+      return res.status(HttpStatus.UNAUTHORIZED);
     }
+    return res.status(HttpStatus.OK).json({
+      info: {
+        login: user.login,
+        'first name': user.firstName,
+        'last name': user.lastName,
+        birthday: user.birthday,
+        address: `${user.street} ${user.buildingNumber}, ${user.postalCode} ${user.city}, ${user.country}`,
+      },
+    });
   }
 
   @ApiOperation({ summary: 'Change my personal info.' })
@@ -46,18 +46,18 @@ export class MyAccountController {
   @UseGuards(AuthGuard('jwt'))
   @Patch('change-info')
   @ApiOkResponse({ description: 'Successfully changed some personal info' })
+  @ApiUnauthorizedResponse({ description: 'Access denied' })
   async changeMyInfo(@Body() body: ChangeInfoDTO, @GetCurrentUser('sub') userId: number, @GetCurrentUser('login') userLogin: string, @Res() res: Response): Promise<Response> {
     const message = await this.#usersService.updateInfo(userId, body);
-    if (message) {
-      this.#emailService.sendEmail({
-        recipient: userLogin,
-        subject: 'Change Of Your Personal Info',
-        body: 'Hey, your info has been changed.',
-      });
-      return res.status(200).json(message);
-    } else {
-      return res.status(400);
+    if (!message) {
+      return res.status(HttpStatus.UNAUTHORIZED);
     }
+    this.#emailService.sendEmail({
+      recipient: userLogin,
+      subject: 'Change Of Your Personal Info',
+      body: 'Hey, your info has been changed.',
+    });
+    return res.status(HttpStatus.OK).json(message);
   }
 
   @ApiOperation({ summary: 'Change my password.' })
@@ -65,6 +65,7 @@ export class MyAccountController {
   @UseGuards(AuthGuard('jwt'))
   @Patch('change-password')
   @ApiOkResponse({ description: 'Successfully changed a password' })
+  @ApiUnauthorizedResponse({ description: 'Access denied' })
   async changeMyPassword(
     @Body() body: ChangePasswordDTO,
     @GetCurrentUser('sub') userId: number,
@@ -72,16 +73,15 @@ export class MyAccountController {
     @Res() res: Response,
   ): Promise<Response> {
     const message = await this.#usersService.updatePassword(userId, body.oldPassword, body.newPassword);
-    if (message) {
-      this.#emailService.sendEmail({
-        recipient: userLogin,
-        subject: 'Change Of Your Password',
-        body: 'Hey, your password has been changed.',
-      });
-      return res.status(200).json(message);
-    } else {
-      return res.status(400);
+    if (!message) {
+      return res.status(HttpStatus.UNAUTHORIZED);
     }
+    this.#emailService.sendEmail({
+      recipient: userLogin,
+      subject: 'Change Of Your Password',
+      body: 'Hey, your password has been changed.',
+    });
+    return res.status(HttpStatus.OK).json(message);
   }
 
   @ApiOperation({ summary: 'Delete my account.' })
@@ -89,29 +89,27 @@ export class MyAccountController {
   @UseGuards(AuthGuard('jwt'))
   @Delete('delete')
   @ApiOkResponse({ description: 'Successfully deleted an account' })
+  @ApiUnauthorizedResponse({ description: 'Access denied' })
   async deleteMyAccount(@GetCurrentUser('sub') userId: number, @GetCurrentUser('login') userLogin: string, @Res() res: Response): Promise<Response> {
     const message = await this.#usersService.remove(userId);
-    if (message) {
-      this.#emailService.sendEmail({
-        recipient: userLogin,
-        subject: 'Your Account Is Deleted',
-        body: 'We are sorry to hear it, but your account has been deleted.',
-      });
-      return res.status(200).json(message);
-    } else {
-      return res.status(400);
+    if (!message) {
+      return res.status(HttpStatus.UNAUTHORIZED);
     }
+    this.#emailService.sendEmail({
+      recipient: userLogin,
+      subject: 'Your Account Is Deleted',
+      body: 'We are sorry to hear it, but your account has been deleted.',
+    });
+    return res.status(HttpStatus.OK).json(message);
   }
 
   @ApiExcludeEndpoint()
   @Get('activate/:verificationCode')
-  @ApiOkResponse({ description: 'Successfully activated an account' })
   async activateMyAccount(@Param('verificationCode') verificationCode: string, @Res() res: Response): Promise<Response> {
     const message = await this.#usersService.activate(verificationCode);
-    if (message) {
-      return res.status(200).json(message);
-    } else {
-      return res.status(400);
+    if (!message) {
+      return res.status(HttpStatus.UNAUTHORIZED);
     }
+    return res.status(HttpStatus.OK).json(message);
   }
 }
