@@ -47,28 +47,24 @@ export class AuthService {
         postalCode: user.address.postalCode,
         buildingNumber: user.address.buildingNumber,
       },
-    }; // need to find a better way to transfer data from user to a UserDTO object
+    };
 
     return { info: userInfo, message: 'activation link has been sent' };
   }
 
   async signIn(userSignInDTO: UserSignInDTO): Promise<Tokens> {
     const user = await this.#usersService.findOneByLogin(userSignInDTO.login);
-    if (!user) {
-      throw new NotFoundException('user with that login does not exist');
-    }
-
-    if (!user.isActive) {
-      throw new UnauthorizedException('user not active');
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('access denied');
     }
 
     if (user.hashedRefreshToken) {
-      throw new UnauthorizedException('user already signed in');
+      throw new BadRequestException('user already signed in');
     }
 
     const isMatch = await compare(userSignInDTO.password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('invalid password');
+      throw new UnauthorizedException('access denied');
     }
 
     const payload = { sub: user.id, login: user.login };
@@ -91,21 +87,14 @@ export class AuthService {
 
   async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
     const user = await this.#usersService.findOneById(userId);
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
 
-    if (!user.isActive) {
-      throw new UnauthorizedException('user not active');
-    }
-
-    if (!user.hashedRefreshToken) {
-      throw new UnauthorizedException('no refresh token active');
+    if (!user || !user.isActive || !user.hashedRefreshToken) {
+      throw new UnauthorizedException('access denied');
     }
 
     const isMatch = await compare(refreshToken, user.hashedRefreshToken);
     if (!isMatch) {
-      throw new UnauthorizedException('tokens do not match');
+      throw new UnauthorizedException('access denied');
     }
 
     const payload = { sub: userId, login: user.login };
@@ -153,5 +142,4 @@ export class AuthService {
     });
     return { message: 'confirmation link has been send' };
   }
-  
 }
