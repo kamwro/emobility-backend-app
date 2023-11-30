@@ -10,6 +10,7 @@ import { userRepositoryMock } from '../../utils/mocks/repositories/user.reposito
 import { addressRepositoryMock } from '../../utils/mocks/repositories/address.repository.mock';
 import { changeInfoDTOMock } from '../../utils/mocks/dtos/change-info.dto.mock';
 import { Address } from '../entities/address.entity';
+import { hash } from 'bcrypt';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -185,7 +186,7 @@ describe('UsersService', () => {
       expect(usersRepository.delete).toHaveBeenCalled();
     });
 
-    it('should throw a UnauthorizedException when trying to remove a non-existing user ', async () => {
+    it('should throw UnauthorizedException when trying to remove a non-existing user ', async () => {
       await service.remove(1).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
@@ -195,15 +196,30 @@ describe('UsersService', () => {
 
   describe('updatePassword', () => {
     it('should update a password', async () => {
-      await service.updatePassword(1, createUserDTOMock.password).then((response) => expect(response).toHaveProperty('message', 'password has been successfully changed'));
+      let user = new User();
+      user.password = await hash(createUserDTOMock.password, 10);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
+      await service
+        .updatePassword(1, createUserDTOMock.password, createUserDTOMock.password)
+        .then((response) => expect(response).toHaveProperty('message', 'password has been successfully changed'));
       expect(usersRepository.findOne).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
-      await service.updatePassword(1, createUserDTOMock.password).catch((e) => {
+    it('should throw UnauthorizedException when there is no user with that provided id', async () => {
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
+      await service.updatePassword(1, createUserDTOMock.password, createUserDTOMock.password).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
+      });
+      expect(usersRepository.findOne).toHaveBeenCalled();
+    });
+
+    it('should throw UnauthorizedException when old password does not match', async () => {
+      let user = new User();
+      user.password = await hash(createUserDTOMock.password, 10);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
+      await service.updatePassword(1, '123', createUserDTOMock.password).catch((e) => {
+        expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('invalid password');
       });
       expect(usersRepository.findOne).toHaveBeenCalled();
     });
@@ -217,7 +233,7 @@ describe('UsersService', () => {
     });
 
     it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.updateInfo(1, changeInfoDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });

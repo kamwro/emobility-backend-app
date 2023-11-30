@@ -71,7 +71,7 @@ export class MyAccountController {
     @GetCurrentUser('login') userLogin: string,
     @Res() res: Response,
   ): Promise<Response> {
-    const message = await this.#usersService.updatePassword(userId, body.newPassword);
+    const message = await this.#usersService.updatePassword(userId, body.oldPassword, body.newPassword);
     if (message) {
       this.#emailService.sendEmail({
         recipient: userLogin,

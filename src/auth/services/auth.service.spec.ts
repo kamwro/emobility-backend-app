@@ -52,6 +52,10 @@ describe('AuthService', () => {
     it('jwt service should be defined', () => {
       expect(jwtService).toBeDefined();
     });
+
+    it('email service should be defined', () => {
+      expect(emailService).toBeDefined();
+    });
   });
 
   describe('registerUser', () => {
@@ -112,13 +116,13 @@ describe('AuthService', () => {
       expect(usersService.findOneByLogin).toHaveBeenCalled();
     });
 
-    it('should throw an UnauthorizedException when user is already signed in', async () => {
+    it('should throw an BadRequestException when user is already signed in', async () => {
       let user = new User();
       user.hashedRefreshToken = tokenMock;
       user.isActive = true;
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
       await service.signIn(userSignInDTOMock).catch((e) => {
-        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e).toBeInstanceOf(BadRequestException);
         expect(e.message).toBe('user already signed in');
       });
       expect(usersService.findOneByLogin).toHaveBeenCalled();

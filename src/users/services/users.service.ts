@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { Address } from '../entities/address.entity';
 import { Message } from '../../utils/types/message.type';
@@ -86,11 +86,16 @@ export class UsersService {
     return { message: 'user account activated' };
   }
 
-  async updatePassword(userId: number, newPlainPassword: string): Promise<Message> {
+  async updatePassword(userId: number, oldPlainPassword: string, newPlainPassword: string): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new UnauthorizedException('access denied');
     }
+    const isMatch = await compare(oldPlainPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('invalid password');
+    }
+
     const newHashedPassword = await hash(newPlainPassword, 10);
     user.password = newHashedPassword;
 
@@ -99,7 +104,7 @@ export class UsersService {
   }
 
   async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message> {
-    const user = await this.findOneById(userId);
+    const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new UnauthorizedException('access denied');
     }
