@@ -33,7 +33,7 @@ export class MyAccountController {
           'first name': user.firstName,
           'last name': user.lastName,
           birthday: user.birthday,
-          address: `${user.address.street} ${user.address.buildingNumber}, ${user.address.postalCode} ${user.address.city}, ${user.address.country}`,
+          address: `${user.street} ${user.buildingNumber}, ${user.postalCode} ${user.city}, ${user.country}`,
         },
       });
     } else {

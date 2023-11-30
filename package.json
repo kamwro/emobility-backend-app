@@ -1,6 +1,6 @@
 {
   "name": "emobility-backend-app",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "emobility backend app",
   "author": "Kamil Wróbel",
   "main": "./src/main.ts",

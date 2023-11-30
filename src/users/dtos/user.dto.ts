@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AddressDTO } from './address.dto';
 
 export class UserDTO {
   @ApiProperty()
@@ -14,6 +13,18 @@ export class UserDTO {
   @ApiProperty()
   readonly birthday: Date;
 
-  @ApiProperty({ type: AddressDTO })
-  readonly address: AddressDTO;
+  @ApiProperty()
+  readonly country: string;
+
+  @ApiProperty()
+  readonly city: string;
+
+  @ApiProperty()
+  readonly postalCode: string;
+
+  @ApiProperty()
+  readonly street: string;
+
+  @ApiProperty()
+  readonly buildingNumber: string;
 }

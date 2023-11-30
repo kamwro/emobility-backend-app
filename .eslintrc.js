@@ -23,7 +23,6 @@ module.exports = {
     'security/detect-object-injection': 'warn',
     'no-var': 'error',
     'no-console': 'warn',
-    camelcase: 'off',
     curly: 'warn',
     eqeqeq: 'warn',
     'no-throw-literal': 'warn',

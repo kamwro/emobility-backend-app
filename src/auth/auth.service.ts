@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { User } from '../users/entities/user.entity';
+import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,7 @@ import { UserRegisterInfo } from '../utils/types/user-register-info.type';
 import { Message } from '../utils/types/message.type';
 import { JwtPayload } from '../utils/types/jwt-payload.type';
 import { EmailService } from '../email/email.service';
+import { UserDTO } from '../users/dtos/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,18 +36,16 @@ export class AuthService {
     }
     await this.sendConfirmationLink(user.login);
 
-    const userInfo = {
+    const userInfo: UserDTO = {
       login: user.login,
       firstName: user.firstName,
       lastName: user.lastName,
       birthday: user.birthday,
-      address: {
-        country: user.address.country,
-        city: user.address.city,
-        street: user.address.street,
-        postalCode: user.address.postalCode,
-        buildingNumber: user.address.buildingNumber,
-      },
+      country: user.country,
+      city: user.city,
+      street: user.street,
+      postalCode: user.postalCode,
+      buildingNumber: user.buildingNumber,
     };
 
     return { info: userInfo, message: 'activation link has been sent' };

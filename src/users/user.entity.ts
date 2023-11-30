@@ -1,7 +1,6 @@
-import { AbstractEntity } from '../../utils/abstracts/abstract-entity';
-import { Entity, Column, ManyToOne, JoinTable } from 'typeorm';
+import { AbstractEntity } from '../utils/abstracts/abstract-entity';
+import { Entity, Column } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { Address } from './address.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity {
@@ -31,7 +30,18 @@ export class User extends AbstractEntity {
   @Column({ default: 'placeholder' })
   public verificationKey: string;
 
-  @ManyToOne(() => Address, (address: Address) => address.user, { cascade: true })
-  @JoinTable()
-  public address: Address;
+  @Column()
+  public country: string;
+
+  @Column()
+  public city: string;
+
+  @Column()
+  public postalCode: string;
+
+  @Column()
+  public street: string;
+
+  @Column()
+  public buildingNumber: string;
 }

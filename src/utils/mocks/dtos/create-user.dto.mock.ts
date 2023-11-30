@@ -5,11 +5,9 @@ export const createUserDTOMock = {
   login: 'test@test.test',
   password: 'T3s!%$#',
   verificationKey: 'test',
-  address: {
-    country: 'test',
-    city: 'test',
-    postalCode: 'test',
-    street: 'test',
-    buildingNumber: 'test',
-  },
+  country: 'test',
+  city: 'test',
+  postalCode: 'test',
+  street: 'test',
+  buildingNumber: 'test',
 };

@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from '../users/entities/user.entity';
-import { Address } from '../users/entities/address.entity';
+import { User } from '../users/user.entity';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { Address } from '../users/entities/address.entity';
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_NAME'),
-        entities: [User, Address],
+        entities: [User],
         subscribers: [],
         synchronize: true,
         // TODO: introduce migrations for production

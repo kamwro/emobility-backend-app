@@ -9,7 +9,7 @@ import { jwtServiceMock } from '../../utils/mocks/services/jwt.service.mock';
 import { emailServiceMock } from '../../utils/mocks/services/email.service.mock';
 import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
 import { userSignInDTOMock } from '../../utils/mocks/dtos/user-sign-in.dto.mock';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../users/user.entity';
 import { tokenMock } from '../../utils/mocks/tokens/token.mock';
 import { hash } from 'bcrypt';
 import { EmailService } from '../../email/email.service';

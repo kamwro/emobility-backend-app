@@ -3,11 +3,9 @@ export const userDTOMock = {
   firstName: 'test',
   lastName: 'test',
   birthday: '2000-01-01',
-  address: {
-    country: 'test',
-    city: 'test',
-    postalCode: 'test',
-    street: 'test',
-    buildingNumber: 'test',
-  },
+  country: 'test',
+  city: 'test',
+  postalCode: 'test',
+  street: 'test',
+  buildingNumber: 'test',
 };
