@@ -52,7 +52,7 @@ class EnvironmentVariables {
 
   @IsNumber()
   @IsNotEmpty()
-  VERIFICATION_TOKEN_EXPIRES_IN_SEC: number = 5;
+  VERIFICATION_TOKEN_EXPIRES_IN_SEC: number = 300;
 
   @IsString()
   @IsNotEmpty()

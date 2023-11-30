@@ -137,8 +137,17 @@ export class AuthService {
     await this.#emailService.sendEmail({
       recipient: userLogin,
       subject: 'Your Confirmation Link',
-      body: `http://localhost:${this.#configService.get('NEST_API_PORT')}/my-account/activate/${verificationKey}`,
+      body: `http://localhost:${this.#configService.get('NEST_API_PORT')}/auth/activate/${verificationKey}`,
     });
     return { message: 'confirmation link has been send' };
+  }
+
+  async activateUser(verificationCode: string): Promise<Message> {
+    try {
+      await this.#jwtService.verifyAsync(verificationCode, { secret: this.#configService.get('VERIFICATION_JWT_SECRET') });
+    } catch (e) {
+      throw new UnauthorizedException('access denied');
+    }
+    return this.#usersService.activate(verificationCode);
   }
 }

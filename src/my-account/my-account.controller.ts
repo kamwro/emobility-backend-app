@@ -1,5 +1,5 @@
-import { Controller, Get, Patch, Delete, Param, Res, Body, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiExcludeEndpoint, ApiOperation, ApiBearerAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Controller, Get, Patch, Delete, Res, Body, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { GetCurrentUser } from '../utils/decorators/get-current-user.decorator';
 import { Response } from 'express';
 import { UsersService } from '../users/users.service';
@@ -100,16 +100,6 @@ export class MyAccountController {
       subject: 'Your Account Is Deleted',
       body: 'We are sorry to hear it, but your account has been deleted.',
     });
-    return res.status(HttpStatus.OK).json(message);
-  }
-
-  @ApiExcludeEndpoint()
-  @Get('activate/:verificationCode')
-  async activateMyAccount(@Param('verificationCode') verificationCode: string, @Res() res: Response): Promise<Response> {
-    const message = await this.#usersService.activate(verificationCode);
-    if (!message) {
-      return res.status(HttpStatus.UNAUTHORIZED);
-    }
     return res.status(HttpStatus.OK).json(message);
   }
 }

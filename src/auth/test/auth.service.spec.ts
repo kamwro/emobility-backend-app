@@ -247,4 +247,25 @@ describe('AuthService', () => {
       expect(emailService.sendEmail).toHaveBeenCalled();
     });
   });
+
+  describe('activateUser', () => {
+    it('should activate an user', async () => {
+      await service.activateUser(tokenMock).then((result) => {
+        expect(result.message).toBe('user account activated');
+      });
+      expect(jwtService.verifyAsync).toHaveBeenCalled();
+      expect(usersService.activate).toHaveBeenCalled();
+    });
+
+    it('should throw UnauthorizedException when verification code is no longer active or valid', async () => {
+      jest.spyOn(jwtService, 'verifyAsync').mockImplementationOnce(() => {
+        throw new Error();
+      });
+      await service.activateUser(tokenMock).catch((e) => {
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
+      });
+      expect(jwtService.verifyAsync).toHaveBeenCalled();
+    });
+  });
 });

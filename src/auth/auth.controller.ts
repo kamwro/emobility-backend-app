@@ -1,5 +1,15 @@
-import { Controller, Get, Post, Body, UseGuards, Res, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiCreatedResponse, ApiOkResponse, ApiBearerAuth, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiNotFoundResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Patch, Body, UseGuards, Res, HttpStatus, Param, Query } from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiExcludeEndpoint,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDTO } from '../users/dtos/create-user.dto';
 import { UserSignInDTO } from '../users/dtos/user-sign-in.dto';
@@ -72,9 +82,22 @@ export class AuthController {
     return res.status(HttpStatus.OK).json(tokens);
   }
 
-  // @Patch('resend-confirmation-link')
-  // async resendActivationLink(@GetCurrentUser('login') login: string): Promise<Message> {
-  //   return await this.#authService.sendConfirmationLink(login);
-  //   // work in progress
-  // }
+  @ApiOperation({ summary: 'Resend confirmation link.' })
+  @ApiTags('Authentication')
+  @Patch('resend-confirmation-link')
+  @ApiOkResponse({ description: 'Successfully sent new confirmation link' })
+  async resendActivationLink(@Query('login') login: string, @Res() res: Response): Promise<Response> {
+    const message = await this.#authService.sendConfirmationLink(login);
+    return res.status(HttpStatus.OK).json(message);
+  }
+
+  @ApiExcludeEndpoint()
+  @Get('activate/:verificationCode')
+  async activateMyAccount(@Param('verificationCode') verificationCode: string, @Res() res: Response): Promise<Response> {
+    const message = await this.#authService.activateUser(verificationCode);
+    if (!message) {
+      return res.status(HttpStatus.UNAUTHORIZED);
+    }
+    return res.status(HttpStatus.OK).json(message);
+  }
 }

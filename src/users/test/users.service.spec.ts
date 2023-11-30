@@ -43,7 +43,7 @@ describe('UsersService', () => {
   describe('findAll', () => {
     it('should return an array with users', async () => {
       await service.findAll().then((entity) => {
-        expect(entity).toBeInstanceOf([User]);
+        expect(entity).toStrictEqual([User]);
       });
       expect(usersRepository.find).toHaveBeenCalled();
     });
@@ -58,13 +58,13 @@ describe('UsersService', () => {
   describe('findOneById', () => {
     it('should find an existing user', async () => {
       await service.findOneById(1).then((entity) => {
-        expect(entity).toBeInstanceOf(User);
+        expect(entity).toBe(User);
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should return null when trying to find non-existing user by fake id', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.findOneById(2).then((entity) => expect(entity).toBeNull());
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -73,13 +73,13 @@ describe('UsersService', () => {
   describe('findOneByLogin', () => {
     it('should find an existing user', async () => {
       await service.findOneByLogin(createUserDTOMock.login).then((entity) => {
-        expect(entity).toBeInstanceOf(User);
+        expect(entity).toBe(User);
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should return null when trying to find non-existing user by fake login', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.findOneByLogin(createUserDTOMock.login).then((entity) => expect(entity).toBeNull());
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -87,7 +87,7 @@ describe('UsersService', () => {
 
   describe('create', () => {
     it('should create a new user', async () => {
-      await service.create(createUserDTOMock).then((entity) => expect(entity).toBeInstanceOf(User));
+      await service.create(createUserDTOMock).then((entity) => expect(entity).toBe(User));
       expect(usersRepository.create).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
@@ -153,13 +153,13 @@ describe('UsersService', () => {
   describe('updateRefreshToken', () => {
     it('should update a refresh token', async () => {
       await service.updateRefreshToken(1, tokenMock).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated'));
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should update a refresh token when provided with null value', async () => {
       await service.updateRefreshToken(1, null).then((response) => expect(response).toHaveProperty('message', 'refreshed token has been updated'));
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
@@ -167,23 +167,23 @@ describe('UsersService', () => {
       await service.updateRefreshToken(2, tokenMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
   describe('updateVerificationKey', () => {
     it('should update refresh token', async () => {
       await service.updateVerificationKey('test', tokenMock).then((result) => expect(result).toHaveProperty('message', 'new verification key has been attached'));
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
     it('should throw UnauthorizedException when there is no user', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.updateVerificationKey('test', tokenMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
@@ -195,7 +195,7 @@ describe('UsersService', () => {
       await service
         .updatePassword(1, createUserDTOMock.password, createUserDTOMock.password)
         .then((response) => expect(response).toHaveProperty('message', 'password has been successfully changed'));
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
@@ -204,7 +204,7 @@ describe('UsersService', () => {
       await service.updatePassword(1, createUserDTOMock.password, createUserDTOMock.password).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
 
     it('should throw UnauthorizedException when old password does not match', async () => {
@@ -214,14 +214,14 @@ describe('UsersService', () => {
       await service.updatePassword(1, '123', createUserDTOMock.password).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('invalid password');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 
   describe('updateInfo', () => {
     it('should update an user info', async () => {
       await service.updateInfo(1, changeInfoDTOMock).then((response) => expect(response).toHaveProperty('message', 'user data has been successfully changed'));
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
       expect(usersRepository.save).toHaveBeenCalled();
     });
 
@@ -230,7 +230,7 @@ describe('UsersService', () => {
       await service.updateInfo(1, changeInfoDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
       });
-      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
   });
 });
