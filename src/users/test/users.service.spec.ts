@@ -4,10 +4,10 @@ import { User } from '../user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { createUserDTOMock } from '../../utils/mocks/dtos/create-user.dto.mock';
-import { tokenMock } from '../../utils/mocks/tokens/token.mock';
-import { userRepositoryMock } from '../../utils/mocks/repositories/user.repository.mock';
-import { changeInfoDTOMock } from '../../utils/mocks/dtos/change-info.dto.mock';
+import { createUserDTOMock } from '../../utils/shared-mocks/create-user.dto.mock';
+import { tokenMock } from '../../utils/shared-mocks/token.mock';
+import { userRepositoryMock } from './mocks/user.repository.mock';
+import { changeInfoDTOMock } from './mocks/change-info.dto.mock';
 import { hash } from 'bcrypt';
 
 describe('UsersService', () => {

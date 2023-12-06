@@ -1,4 +1,4 @@
-import { tokenMock } from '../tokens/token.mock';
+import { tokenMock } from '../../../utils/shared-mocks/token.mock';
 
 export const jwtServiceMock = {
   signAsync: jest.fn().mockResolvedValue(tokenMock),
