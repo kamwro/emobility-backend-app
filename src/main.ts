@@ -26,6 +26,8 @@ async function bootstrap() {
   const configService = new ConfigService();
 
   const port: number = Number(configService.get('NEST_API_PORT'));
+
   await app.listen(port);
+  
 }
 bootstrap();

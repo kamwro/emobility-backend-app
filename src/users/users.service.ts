@@ -40,6 +40,7 @@ export class UsersService {
       throw new UnauthorizedException('access denied');
     }
     await this.#usersRepository.delete(userId);
+
     return { message: 'user deleted' };
   }
 
@@ -67,6 +68,7 @@ export class UsersService {
 
     user.hashedRefreshToken = hash;
     await this.#usersRepository.save(user);
+
     return { message: 'refreshed token has been updated' };
   }
 
@@ -77,6 +79,7 @@ export class UsersService {
     }
     user.verificationKey = verificationKey;
     await this.#usersRepository.save(user);
+
     return { message: 'new verification key has been attached' };
   }
 
@@ -94,6 +97,7 @@ export class UsersService {
     user.password = newHashedPassword;
 
     await this.#usersRepository.save(user);
+
     return { message: 'password has been successfully changed' };
   }
 
@@ -109,6 +113,7 @@ export class UsersService {
     }
 
     await this.#usersRepository.save(user);
+    
     return { message: 'user data has been successfully changed' };
   }
 }
