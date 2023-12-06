@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
@@ -16,6 +16,6 @@ export class AppController {
   async redirectToDocs(@Res() res: Response): Promise<void> {
     const port = this.#configService.get('NEST_API_PORT');
     const url = `http://localhost:${port}/api#/`;
-    return res.redirect(301, url);
+    return res.redirect(HttpStatus.PERMANENT_REDIRECT, url);
   }
 }
