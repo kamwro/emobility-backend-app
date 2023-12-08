@@ -3,10 +3,11 @@ version: '3.8'
 services:
   api:
     container_name: nest
-    image: nestjs-dev:1.0.0
+    image: nestjs
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: production
     ports:
       - ${NEST_API_PORT}:${NEST_API_PORT}
     networks:
@@ -16,7 +17,7 @@ services:
     env_file:
       - /.env
     volumes:
-      - ./src:/app/src
+      - .:/app/
     restart: always
 
   db:
