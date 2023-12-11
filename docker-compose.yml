@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: production
+      target: development
     ports:
       - ${NEST_API_PORT}:${NEST_API_PORT}
     networks:

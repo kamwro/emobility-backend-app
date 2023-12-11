@@ -1,33 +1,55 @@
-FROM node:20-bookworm-slim as base
+FROM node:20-bookworm-slim as base-image
+
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 
 WORKDIR /.
 
-COPY package*.json ./
+COPY package*.json /.
 
-FROM base as development
+# production
+
+FROM base-image as build-prod
+
+WORKDIR /.
+
+RUN npm ci --only=production
+
+FROM build-prod as production
+
+ENV NODE_ENV production
+
+COPY --from=build-prod /bin/dumb-init /bin/dumb-init
+
+USER node
+
+WORKDIR /.
+
+COPY --chown=node:node --from=build-prod node_modules node_modules
+
+COPY --chown=node:node . .
+
+CMD ["dumb-init", "npm", "run", "start:prod" ]
+
+# development
+
+FROM base-image as build-dev
+
+WORKDIR /.
 
 RUN npm install
 
-COPY . . 
+FROM build-dev as development
 
-RUN npm run build
+ENV NODE_ENV development
 
-CMD [ "npm", "run", "start:dev" ]
+COPY --from=build-dev /bin/dumb-init /bin/dumb-init
 
-FROM base as production
+USER node
 
-RUN npm install --omit=dev
+WORKDIR /.
 
-COPY --from=development /dist /.
+COPY --chown=node:node --from=build-dev node_modules node_modules
 
-CMD [ "npm", "run", "start:prod" ]
+COPY --chown=node:node . .
 
-FROM base as test
-
-RUN npm ci
-
-COPY . . 
-
-RUN npm run build
-
-CMD [ "npm", "run", "test" ]
+CMD [ "dumb-init", "npm", "run", "start:dev" ]
