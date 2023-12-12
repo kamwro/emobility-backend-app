@@ -87,7 +87,7 @@ $ docker-compose up --build
 
 - Swagger docs: http://localhost:{port}/api
 
-## Testing The App
+## Tests
 
 Unit tests included, testing mainly services.
 Run the following command in the nest container:
@@ -96,17 +96,27 @@ Run the following command in the nest container:
 $ npm run test
 ```
 
-## Design Patterns And Clean Code
+## Migrations
 
-**WORK IN PROGRESS**
+```bash
+$ npm run migration:run
+```
+
+```bash
+$ npm run migration:create
+```
+
+```bash
+$ npm run migration:generate
+```
+
+```bash
+$ npm run migration:revert
+```
 
 ## Feedback
 
 More than welcome! Pull a request or leave a comment if you wish.
-
-## Future Plans
-
-**WORK IN PROGRESS**
 
 ## License
 

@@ -25,7 +25,7 @@ export class User extends AbstractEntity {
 
   @Column({ type: 'varchar', nullable: true })
   @Exclude()
-  public hashedRefreshToken: string | null;
+  public refreshToken: string | null;
 
   @Column({ default: 'placeholder' })
   public verificationKey: string;

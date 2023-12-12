@@ -5,7 +5,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { DbModule } from '../db/db.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { validate } from '../env.validation';
+import { validate } from '../../env.validation';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { EmailModule } from '../email/email.module';

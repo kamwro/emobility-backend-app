@@ -15,9 +15,8 @@ import { User } from '../users/user.entity';
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_NAME'),
         entities: [User],
-        subscribers: [],
-        synchronize: true,
-        // TODO: introduce migrations for production
+        migrations: ['dist/src/migrations/*{.ts,.js}'],
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),

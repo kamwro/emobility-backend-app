@@ -12,7 +12,9 @@ FROM base-image as build-prod
 
 WORKDIR /.
 
-RUN npm ci --only=production
+COPY . .
+
+RUN npm ci --omit=dev
 
 FROM build-prod as production
 
@@ -37,6 +39,8 @@ FROM base-image as build-dev
 WORKDIR /.
 
 RUN npm install
+
+RUN npm run build
 
 FROM build-dev as development
 
