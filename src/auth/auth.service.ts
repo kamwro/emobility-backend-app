@@ -142,7 +142,7 @@ export class AuthService {
     return { message: 'confirmation link has been send' };
   }
 
-  async activateUser(verificationCode: string): Promise<Message> {
+  async activateUser(verificationCode: string): Promise<Message | null> {
     try {
       await this.#jwtService.verifyAsync(verificationCode, { secret: this.#configService.get('VERIFICATION_JWT_SECRET') });
     } catch (e) {

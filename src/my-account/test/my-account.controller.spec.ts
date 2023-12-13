@@ -37,6 +37,10 @@ describe('MyAccountController', () => {
     emailService = module.get<EmailService>(EmailService);
   });
 
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
   describe('providers', () => {
     it('Users service should be defined', () => {
       expect(usersService).toBeDefined();
