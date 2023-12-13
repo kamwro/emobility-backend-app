@@ -34,7 +34,7 @@ export class UsersService {
     return await this.#usersRepository.save(user);
   }
 
-  async remove(userId: number): Promise<Message> {
+  async remove(userId: number): Promise<Message | null> {
     const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new UnauthorizedException('access denied');
@@ -66,7 +66,7 @@ export class UsersService {
       throw new UnauthorizedException('access denied');
     }
 
-    user.hashedRefreshToken = hash;
+    user.refreshToken = hash;
     await this.#usersRepository.save(user);
 
     return { message: 'refreshed token has been updated' };
@@ -83,7 +83,7 @@ export class UsersService {
     return { message: 'new verification key has been attached' };
   }
 
-  async updatePassword(userId: number, oldPlainPassword: string, newPlainPassword: string): Promise<Message> {
+  async updatePassword(userId: number, oldPlainPassword: string, newPlainPassword: string): Promise<Message | null> {
     const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new UnauthorizedException('access denied');
@@ -101,19 +101,19 @@ export class UsersService {
     return { message: 'password has been successfully changed' };
   }
 
-  async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message> {
+  async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message | null> {
     let user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new UnauthorizedException('access denied');
     }
-    
+
     let info: keyof ChangeInfoDTO;
     for (info in infoToChange) {
       user[info] = infoToChange[info];
     }
 
     await this.#usersRepository.save(user);
-    
+
     return { message: 'user data has been successfully changed' };
   }
 }

@@ -57,7 +57,7 @@ export class AuthService {
       throw new UnauthorizedException('access denied');
     }
 
-    if (user.hashedRefreshToken) {
+    if (user.refreshToken) {
       throw new BadRequestException('user already signed in');
     }
 
@@ -69,15 +69,15 @@ export class AuthService {
     const payload = { sub: user.id, login: user.login };
     const tokens = await this.getTokens(payload);
 
-    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
-    await this.#usersService.updateRefreshToken(user.id, hashedRefreshToken);
+    const refreshToken = await hash(tokens.refreshToken, 10);
+    await this.#usersService.updateRefreshToken(user.id, refreshToken);
 
     return tokens;
   }
 
   async signOut(userId: number): Promise<Message> {
     const user = await this.#usersService.findOneById(userId);
-    if (!user?.hashedRefreshToken) {
+    if (!user?.refreshToken) {
       throw new NotFoundException('user is not logged in');
     }
     await this.#usersService.updateRefreshToken(userId, null);
@@ -87,11 +87,11 @@ export class AuthService {
   async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
     const user = await this.#usersService.findOneById(userId);
 
-    if (!user || !user.isActive || !user.hashedRefreshToken) {
+    if (!user || !user.isActive || !user.refreshToken) {
       throw new UnauthorizedException('access denied');
     }
 
-    const isMatch = await compare(refreshToken, user.hashedRefreshToken);
+    const isMatch = await compare(refreshToken, user.refreshToken);
     if (!isMatch) {
       throw new UnauthorizedException('access denied');
     }
@@ -99,8 +99,8 @@ export class AuthService {
     const payload = { sub: userId, login: user.login };
     const tokens = await this.getTokens(payload);
 
-    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
-    await this.#usersService.updateRefreshToken(userId, hashedRefreshToken);
+    const newRefreshToken = await hash(tokens.refreshToken, 10);
+    await this.#usersService.updateRefreshToken(userId, newRefreshToken);
 
     return tokens;
   }

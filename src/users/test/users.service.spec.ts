@@ -7,7 +7,7 @@ import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { createUserDTOMock } from '../../utils/shared-mocks/create-user.dto.mock';
 import { tokenMock } from '../../utils/shared-mocks/token.mock';
 import { userRepositoryMock } from './mocks/user.repository.mock';
-import { changeInfoDTOMock } from './mocks/change-info.dto.mock';
+import { changeInfoDTOMock } from '../../utils/shared-mocks/change-info.dto.mock';
 import { hash } from 'bcrypt';
 
 describe('UsersService', () => {

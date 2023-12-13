@@ -2,7 +2,7 @@ FROM node:20-bookworm-slim as base-image
 
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 
-WORKDIR /.
+WORKDIR /src
 
 COPY package*.json /.
 
@@ -10,9 +10,7 @@ COPY package*.json /.
 
 FROM base-image as build-prod
 
-WORKDIR /.
-
-COPY . .
+WORKDIR /src
 
 RUN npm ci --omit=dev
 
@@ -36,11 +34,9 @@ CMD ["dumb-init", "npm", "run", "start:prod" ]
 
 FROM base-image as build-dev
 
-WORKDIR /.
+WORKDIR /src
 
 RUN npm install
-
-RUN npm run build
 
 FROM build-dev as development
 
@@ -50,7 +46,7 @@ COPY --from=build-dev /bin/dumb-init /bin/dumb-init
 
 USER node
 
-WORKDIR /.
+WORKDIR /src
 
 COPY --chown=node:node --from=build-dev node_modules node_modules
 

@@ -75,7 +75,12 @@ You should also change the create-db.sql file accordingly if you changed databas
 
 1. Have your Docker running
 2. Go to the root project directory
-3. Run the following command in the terminal and wait:
+3. Default stage is production. You can change that in the docker-compose
+4. Run the following commands in the terminal:
+
+```bash
+$ npm run build
+```
 
 ```bash
 $ docker-compose up --build

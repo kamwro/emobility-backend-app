@@ -30,7 +30,7 @@ export class MyAccountController {
     if (!user) {
       return res.status(HttpStatus.UNAUTHORIZED);
     }
-    return res.status(HttpStatus.OK).json({
+    return res.status(HttpStatus.OK).send({
       info: {
         login: user.login,
         'first name': user.firstName,
@@ -57,7 +57,7 @@ export class MyAccountController {
       subject: 'Change Of Your Personal Info',
       body: 'Hey, your info has been changed.',
     });
-    return res.status(HttpStatus.OK).json(message);
+    return res.status(HttpStatus.OK).send(message);
   }
 
   @ApiOperation({ summary: 'Change my password.' })
@@ -81,7 +81,7 @@ export class MyAccountController {
       subject: 'Change Of Your Password',
       body: 'Hey, your password has been changed.',
     });
-    return res.status(HttpStatus.OK).json(message);
+    return res.status(HttpStatus.OK).send(message);
   }
 
   @ApiOperation({ summary: 'Delete my account.' })
@@ -100,6 +100,6 @@ export class MyAccountController {
       subject: 'Your Account Is Deleted',
       body: 'We are sorry to hear it, but your account has been deleted.',
     });
-    return res.status(HttpStatus.OK).json(message);
+    return res.status(HttpStatus.OK).send(message);
   }
 }

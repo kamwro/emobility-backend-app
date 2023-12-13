@@ -26,3 +26,4 @@ export class EmailService {
     return { message: 'email has been sent' };
   }
 }
+

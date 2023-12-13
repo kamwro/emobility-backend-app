@@ -118,7 +118,7 @@ describe('AuthService', () => {
 
     it('should throw an BadRequestException when user is already signed in', async () => {
       let user = new User();
-      user.hashedRefreshToken = tokenMock;
+      user.refreshToken = tokenMock;
       user.isActive = true;
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
       await service.signIn(userSignInDTOMock).catch((e) => {
@@ -144,7 +144,7 @@ describe('AuthService', () => {
   describe('signOut', () => {
     it('should sign out an user', async () => {
       let user = new User();
-      user.hashedRefreshToken = tokenMock;
+      user.refreshToken = tokenMock;
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.signOut(1).then((result) => expect(result.message).toBe('signed out'));
       expect(usersService.findOneById).toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe('AuthService', () => {
     it('should refresh tokens', async () => {
       let user = new User();
       user.isActive = true;
-      user.hashedRefreshToken = await hash(tokenMock, 10);
+      user.refreshToken = await hash(tokenMock, 10);
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.refreshTokens(1, tokenMock).then((entity) => {
         expect(entity).toHaveProperty('accessToken');
@@ -208,7 +208,7 @@ describe('AuthService', () => {
     it('should throw an UnauthorizedException when provided token does not match with the real one', async () => {
       let user = new User();
       user.isActive = true;
-      user.hashedRefreshToken = tokenMock;
+      user.refreshToken = tokenMock;
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.refreshTokens(1, 'fakeToken').catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException);
