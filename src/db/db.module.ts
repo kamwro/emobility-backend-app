@@ -17,6 +17,7 @@ import { User } from '../users/user.entity';
         entities: [User],
         migrations: ['dist/src/migrations/*{.ts,.js}'],
         synchronize: false,
+        migrationsRun: true,
       }),
       inject: [ConfigService],
     }),

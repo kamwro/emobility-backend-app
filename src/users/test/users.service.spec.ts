@@ -95,7 +95,7 @@ describe('UsersService', () => {
 
   describe('remove', () => {
     it('should remove a user', async () => {
-      let user = new User();
+      const user = new User();
       user.id = 1;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValue(user);
       await service.remove(1).then((result) => expect(result).toHaveProperty('message', 'user deleted'));
@@ -113,7 +113,7 @@ describe('UsersService', () => {
 
   describe('activate', () => {
     it('should activate an user', async () => {
-      let user = new User();
+      const user = new User();
       user.verificationKey = tokenMock;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).then((result) => expect(result).toHaveProperty('message', 'user account activated'));
@@ -130,7 +130,7 @@ describe('UsersService', () => {
     });
 
     it('should throw UnauthorizedException when verification key does not match', async () => {
-      let user = new User();
+      const user = new User();
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).catch((e) => {
         expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied');
@@ -139,7 +139,7 @@ describe('UsersService', () => {
     });
 
     it('should throw BadRequestsException when user is already active', async () => {
-      let user = new User();
+      const user = new User();
       user.isActive = true;
       user.verificationKey = tokenMock;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
@@ -189,7 +189,7 @@ describe('UsersService', () => {
 
   describe('updatePassword', () => {
     it('should update a password', async () => {
-      let user = new User();
+      const user = new User();
       user.password = await hash(createUserDTOMock.password, 10);
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service
@@ -208,7 +208,7 @@ describe('UsersService', () => {
     });
 
     it('should throw UnauthorizedException when old password does not match', async () => {
-      let user = new User();
+      const user = new User();
       user.password = await hash(createUserDTOMock.password, 10);
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.updatePassword(1, '123', createUserDTOMock.password).catch((e) => {

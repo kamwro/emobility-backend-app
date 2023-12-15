@@ -64,6 +64,7 @@ describe('AuthService', () => {
         expect(result.info).toBeTruthy();
         expect(result.message).toBe('activation link has been sent');
       });
+      expect(usersService.findOneByLogin).toHaveBeenCalled();
       expect(usersService.create).toHaveBeenCalled();
       expect(usersService.updateVerificationKey).toHaveBeenCalled();
       expect(emailService.sendEmail).toHaveBeenCalled();
@@ -71,14 +72,11 @@ describe('AuthService', () => {
     });
 
     it('should throw an BadRequestException when trying to add user with email already registered', async () => {
-      jest.spyOn(usersService, 'create').mockImplementationOnce(() => {
-        throw new Error();
-      });
       await service.registerUser(createUserDTOMock).catch((e) => {
         expect(e).toBeInstanceOf(BadRequestException);
         expect(e.message).toBe('email already taken');
       });
-      expect(usersService.create).toHaveBeenCalled();
+      expect(usersService.findOneByLogin).toHaveBeenCalled();
     });
   });
 
@@ -251,7 +249,7 @@ describe('AuthService', () => {
   describe('activateUser', () => {
     it('should activate an user', async () => {
       await service.activateUser(tokenMock).then((result) => {
-        expect(result.message).toBe('user account activated');
+        expect(result?.message).toBe('user account activated');
       });
       expect(jwtService.verifyAsync).toHaveBeenCalled();
       expect(usersService.activate).toHaveBeenCalled();

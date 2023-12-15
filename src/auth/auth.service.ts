@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -27,13 +26,13 @@ export class AuthService {
   }
 
   async registerUser(createUserDto: CreateUserDTO): Promise<UserRegisterInfo> {
-    let user: User;
-    try {
-      const hashedPassword = await hash(createUserDto.password, 10);
-      user = await this.#usersService.create({ ...createUserDto, password: hashedPassword });
-    } catch (e) {
+    let user = await this.#usersService.findOneByLogin(createUserDto.login);
+    if (user) {
       throw new BadRequestException('email already taken');
     }
+    const hashedPassword = await hash(createUserDto.password, 10);
+    user = await this.#usersService.create({ ...createUserDto, password: hashedPassword });
+
     await this.sendConfirmationLink(user.login);
 
     const userInfo: UserDTO = {
