@@ -22,7 +22,7 @@ COPY --from=build-prod /bin/dumb-init /bin/dumb-init
 
 USER node
 
-WORKDIR /.
+WORKDIR /src
 
 COPY --chown=node:node --from=build-prod node_modules node_modules
 
