@@ -1,13 +1,55 @@
-FROM node:lts-bookworm-slim
+FROM node:20-bookworm-slim as base-image
 
-WORKDIR /emobility-backend-app
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 
-COPY package*.json ./
+WORKDIR /src
+
+COPY package*.json /.
+
+# production
+
+FROM base-image as build-prod
+
+WORKDIR /src
+
+RUN npm ci --omit=dev
+
+FROM build-prod as production
+
+ENV NODE_ENV production
+
+COPY --from=build-prod /bin/dumb-init /bin/dumb-init
+
+USER node
+
+WORKDIR /src
+
+COPY --chown=node:node --from=build-prod node_modules node_modules
+
+COPY --chown=node:node . .
+
+CMD ["dumb-init", "npm", "run", "start:prod" ]
+
+# development
+
+FROM base-image as build-dev
+
+WORKDIR /src
 
 RUN npm install
 
-COPY . .
+FROM build-dev as development
 
-RUN npm run build
+ENV NODE_ENV development
 
-CMD [ "npm", "run", "start:dev" ]
+COPY --from=build-dev /bin/dumb-init /bin/dumb-init
+
+USER node
+
+WORKDIR /src
+
+COPY --chown=node:node --from=build-dev node_modules node_modules
+
+COPY --chown=node:node . .
+
+CMD [ "dumb-init", "npm", "run", "start:dev" ]

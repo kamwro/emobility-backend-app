@@ -23,7 +23,6 @@ module.exports = {
     'security/detect-object-injection': 'warn',
     'no-var': 'error',
     'no-console': 'warn',
-    camelcase: 'off',
     curly: 'warn',
     eqeqeq: 'warn',
     'no-throw-literal': 'warn',
@@ -32,7 +31,6 @@ module.exports = {
     'no-unused-expressions': ['error', { allowTernary: true }],
     'no-use-before-define': 'off',
     '@typescript-eslint/naming-convention': [
-      'error',
       { selector: 'variableLike', format: ['camelCase'] },
       {
         selector: 'variable',
@@ -42,7 +40,7 @@ module.exports = {
         selector: 'variable',
         types: ['boolean'],
         format: ['PascalCase'],
-        prefix: ['is', 'should', 'has', 'can', 'did', 'will'],
+        prefix: ['is', 'has'],
       },
       {
         selector: 'class',

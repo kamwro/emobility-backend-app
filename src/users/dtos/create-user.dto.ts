@@ -1,7 +1,6 @@
 import { IsString, IsDateString, IsNotEmpty, IsEmail, Length, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Constants } from '../../utils/constants';
-import { CreateAddressDTO } from './create-address.dto';
+import { passwordRegex } from '../../utils/constants/password-regex.constant';
 
 export class CreateUserDTO {
   @IsNotEmpty({ message: 'login is required' })
@@ -12,7 +11,7 @@ export class CreateUserDTO {
   @IsNotEmpty({ message: 'password is required' })
   @IsString()
   @Length(4, 20)
-  @Matches(Constants.passwordRegex, {
+  @Matches(passwordRegex, {
     message: 'password is too weak',
   })
   @ApiProperty()
@@ -33,7 +32,28 @@ export class CreateUserDTO {
   @ApiProperty()
   readonly birthday: string;
 
-  @IsNotEmpty({ message: 'address data is required' })
-  @ApiProperty({ type: CreateAddressDTO })
-  readonly address: CreateAddressDTO;
+  @IsNotEmpty({ message: 'country is required' })
+  @IsString()
+  @ApiProperty()
+  readonly country: string;
+
+  @IsNotEmpty({ message: 'city is required' })
+  @IsString()
+  @ApiProperty()
+  readonly city: string;
+
+  @IsNotEmpty({ message: 'postal code / zip code is required' })
+  @IsString()
+  @ApiProperty()
+  readonly postalCode: string;
+
+  @IsNotEmpty({ message: 'street is required' })
+  @IsString()
+  @ApiProperty()
+  readonly street: string;
+
+  @IsNotEmpty({ message: 'building number is required' })
+  @IsString()
+  @ApiProperty()
+  readonly buildingNumber: string;
 }

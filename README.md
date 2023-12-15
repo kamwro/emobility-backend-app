@@ -32,11 +32,41 @@ POSTGRES_NAME=test
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 
-# API 
+# API
 NEST_API_PORT=3000
 
-# Dbeaver - optional 
+# Tokens
+# Secret - 32 char secret code for JWT token. You can use something like $ openssl rand -hex 32 to generate it
+ACCESS_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+ACCESS_TOKEN_EXPIRES_IN_MIN = 5
+
+REFRESH_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+REFRESH_TOKEN_EXPIRES_IN_DAY = 7
+
+# Token for confirmation link
+VERIFICATION_JWT_SECRET = EXAMPLE_EXAMPLE__EXAMPLE_EXAMPLE
+VERIFICATION_TOKEN_EXPIRES_IN_SEC = 120
+
+# Email
+EMAIL_HOST =
+EMAIL_PORT =
+EMAIL_USER =
+EMAIL_PASSWORD =
+
+
+# Dbeaver - optional
 POSTGRES_DBEAVER_PORT=5433
+
+
+# Throttler - optional
+THROTTLE_TTL_SHORT = 1000
+THROTTLE_LIMIT_SHORT = 3
+
+THROTTLE_TTL_MEDIUM = 10000
+THROTTLE_LIMIT_MEDIUM = 20
+
+THROTTLE_TTL_LONG = 60000
+THROTTLE_LIMIT_LONG = 100
 ```
 
 You should also change the create-db.sql file accordingly if you changed database name.
@@ -45,7 +75,12 @@ You should also change the create-db.sql file accordingly if you changed databas
 
 1. Have your Docker running
 2. Go to the root project directory
-3. Run the following command in the terminal and wait:
+3. Default stage is production. You can change that in the docker-compose
+4. Run the following commands in the terminal:
+
+```bash
+$ npm run build
+```
 
 ```bash
 $ docker-compose up --build
@@ -57,7 +92,7 @@ $ docker-compose up --build
 
 - Swagger docs: http://localhost:{port}/api
 
-## Testing The App
+## Tests
 
 Unit tests included, testing mainly services.
 Run the following command in the nest container:
@@ -66,17 +101,27 @@ Run the following command in the nest container:
 $ npm run test
 ```
 
-## Design Patterns And Clean Code
+## Migrations
 
-**WORK IN PROGRESS**
+```bash
+$ npm run migration:run
+```
+
+```bash
+$ npm run migration:create
+```
+
+```bash
+$ npm run migration:generate
+```
+
+```bash
+$ npm run migration:revert
+```
 
 ## Feedback
 
 More than welcome! Pull a request or leave a comment if you wish.
-
-## Future Plans
-
-**WORK IN PROGRESS**
 
 ## License
 
