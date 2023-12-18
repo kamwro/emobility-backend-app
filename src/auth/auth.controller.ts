@@ -62,7 +62,7 @@ export class AuthController {
   async signOut(@GetCurrentUser('sub') userId: number, @Res() res: Response): Promise<Response> {
     const message = await this.#authService.signOut(userId);
     if (!message) {
-      return res.status(HttpStatus.NOT_FOUND);
+      return res.status(HttpStatus.UNAUTHORIZED);
     }
     return res.status(HttpStatus.OK).json(message);
   }
