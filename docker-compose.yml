@@ -28,7 +28,7 @@ services:
     networks:
       - nestjs-network
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - /var/lib/docker/volumes
       - ./create-db.sql:/docker-entrypoint-initdb.d/create-db.sql
     ports:
       - ${POSTGRES_DBEAVER_PORT}:${POSTGRES_PORT}
