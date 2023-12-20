@@ -9,6 +9,7 @@ import { validate } from '../env.validation';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { EmailModule } from '../email/email.module';
+import { ChargingStationsModule } from '../charging-stations/charging-stations.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { EmailModule } from '../email/email.module';
     UsersModule,
     DbModule,
     EmailModule,
+    ChargingStationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validate,
