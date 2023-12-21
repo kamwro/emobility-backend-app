@@ -19,7 +19,6 @@ import { ChargingStationType } from '../charging-stations/entities/station-type.
         entities: [User, ChargingStation, ChargingStationType],
         migrations: ['dist/src/migrations/*{.ts,.js}'],
         synchronize: false,
-        migrationsRun: true,
       }),
       inject: [ConfigService],
     }),

@@ -41,8 +41,6 @@ export class Initial1703130028707 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`TRUNCATE "charging_stations"`);
-    await queryRunner.query(`TRUNCATE "charging_station_types"`);
     await queryRunner.query(`ALTER TABLE "charging_stations" DROP CONSTRAINT "FK_b967d6e0a3d1e44439af635a76f"`);
     await queryRunner.query(`DROP TABLE "charging_stations"`);
     await queryRunner.query(`DROP TABLE "charging_station_types"`);
