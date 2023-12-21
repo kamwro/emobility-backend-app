@@ -3,31 +3,25 @@ import { AbstractEntity } from '../../utils/abstracts/abstract-entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { ChargingStation } from './charging-station.entity';
 
-@Entity({ name: 'charging_stations' })
-export class StationType extends AbstractEntity {
+@Entity({ name: 'charging_station_types' })
+export class ChargingStationType extends AbstractEntity {
   @Column({ unique: true })
-  public name: string;
+  public trademark: string;
+
+  @Column()
+  public model: string;
+
+  @Column()
+  public producer: string;
 
   @Column()
   public current: 'AC' | 'DC';
 
-  @Column('string', { array: true })
-  public usedConnectors: [string];
+  @Column()
+  public maxPlugsConnected: number;
 
   @Column()
-  public chargingSpeed: {
-    minKPH: number;
-    minKPM: number;
-    maxKPH: number;
-    maxKPM: number;
-  };
-
-  @Column()
-  public isAvailable: {
-    atHome: boolean;
-    atWorkplace: boolean;
-    inPublic: boolean;
-  };
+  public maxPowerUsedInKWh: number;
 
   @Column()
   public hasWirelessCharging: boolean;
