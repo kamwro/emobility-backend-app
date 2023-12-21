@@ -28,11 +28,14 @@ services:
     networks:
       - nestjs-network
     volumes:
-      - /var/lib/docker/volumes
+      - data-volume:/var/lib/postgres:16.0-alpine
       - ./create-db.sql:/docker-entrypoint-initdb.d/create-db.sql
     ports:
       - ${POSTGRES_DBEAVER_PORT}:${POSTGRES_PORT}
     restart: always
+
+volumes:
+  data-volume:
 
 networks:
   nestjs-network:
