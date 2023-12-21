@@ -16,8 +16,6 @@ services:
       - db
     env_file:
       - /.env
-    volumes:
-      - .:/app/
     restart: always
 
   db:
@@ -30,11 +28,14 @@ services:
     networks:
       - nestjs-network
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - data-volume:/var/lib/postgresql/data
       - ./create-db.sql:/docker-entrypoint-initdb.d/create-db.sql
     ports:
       - ${POSTGRES_DBEAVER_PORT}:${POSTGRES_PORT}
     restart: always
+
+volumes:
+  data-volume:
 
 networks:
   nestjs-network:
