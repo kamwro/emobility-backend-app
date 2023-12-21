@@ -17,15 +17,15 @@ export class GetStationsDto {
   @Type(() => Number)
   @IsNumber()
   @ApiProperty({ description: 'how many records to show' })
-  readonly limit?: number;
+  readonly limit: number = 20;
 
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'property by which a sort will be performed' })
-  readonly sortProperty?: string;
+  readonly sortProperty: string = 'createdAt';
 
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'ASC or DESC' })
-  readonly sortDirection?: 'ASC' | 'DESC';
+  readonly sortDirection: 'ASC' | 'DESC' = 'DESC';
 }
