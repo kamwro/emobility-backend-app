@@ -7,8 +7,11 @@ export class Initial1703130028707 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "charging_station_types" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "trademark" character varying NOT NULL, "model" character varying NOT NULL, "producer" character varying NOT NULL, "current" character varying NOT NULL, "maxPlugsConnected" integer NOT NULL, "maxPowerUsedInKWh" integer NOT NULL, "hasWirelessCharging" boolean NOT NULL, CONSTRAINT "UQ_5712ea73d66ca181cd43e752989" UNIQUE ("trademark"), CONSTRAINT "PK_5a24348d3967802d2ce07c0db91" PRIMARY KEY ("id"))`,
-    );
+      `CREATE TABLE "users" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "login" character varying NOT NULL, "password" character varying NOT NULL, "firstName" character varying NOT NULL, "lastName" character varying NOT NULL, "birthday" TIMESTAMP NOT NULL, "isActive" boolean NOT NULL DEFAULT false, "refreshToken" character varying, "verificationKey" character varying NOT NULL DEFAULT 'placeholder', "country" character varying NOT NULL, "city" character varying NOT NULL, "postalCode" character varying NOT NULL, "street" character varying NOT NULL, "buildingNumber" character varying NOT NULL, CONSTRAINT "UQ_2d443082eccd5198f95f2a36e2c" UNIQUE ("login"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
+    ),
+      await queryRunner.query(
+        `CREATE TABLE "charging_station_types" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "trademark" character varying NOT NULL, "model" character varying NOT NULL, "producer" character varying NOT NULL, "current" character varying NOT NULL, "maxPlugsConnected" integer NOT NULL, "maxPowerUsedInKWh" integer NOT NULL, "hasWirelessCharging" boolean NOT NULL, CONSTRAINT "UQ_5712ea73d66ca181cd43e752989" UNIQUE ("trademark"), CONSTRAINT "PK_5a24348d3967802d2ce07c0db91" PRIMARY KEY ("id"))`,
+      );
     await queryRunner.query(
       `CREATE TABLE "charging_stations" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "priceInEuro" integer NOT NULL, "isAvailableAtHome" boolean NOT NULL, "isAvailableAtWorkPlace" boolean NOT NULL, "isAvailableInPublic" boolean NOT NULL, "typeId" integer, CONSTRAINT "PK_1c6b0929c2ea47fddae66e120c0" PRIMARY KEY ("id"))`,
     );
@@ -41,6 +44,7 @@ export class Initial1703130028707 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE "users"`);
     await queryRunner.query(`ALTER TABLE "charging_stations" DROP CONSTRAINT "FK_b967d6e0a3d1e44439af635a76f"`);
     await queryRunner.query(`DROP TABLE "charging_stations"`);
     await queryRunner.query(`DROP TABLE "charging_station_types"`);
