@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { AppModule } from '../src/app/app.module';
 import { setupUser, setupActiveUser, dbConfig } from './test-utils';
 
-
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let userRepository: Repository<User>;
@@ -21,6 +20,8 @@ describe('AuthController (e2e)', () => {
     await request(app.getHttpServer())
       .post(`${URL}/login`)
       .send({ login: createUserDTOMock.login, password: createUserDTOMock.password })
+      .set('accept', '*/*')
+      .set('Content-Type', 'application/json')
       .expect((response: request.Response) => {
         tokens = response.body;
       });
@@ -46,6 +47,10 @@ describe('AuthController (e2e)', () => {
     await app.init();
   });
 
+  beforeEach(async () => {
+    await setupUser(userRepository);
+  });
+
   afterEach(async () => {
     await userRepository.query('DELETE FROM users');
   });
@@ -58,7 +63,7 @@ describe('AuthController (e2e)', () => {
     it('should register user with valid data', async () => {
       await request(app.getHttpServer())
         .post(`${URL}/register`)
-        .send(createUserDTOMock)
+        .send({ ...createUserDTOMock, login: createUserDTOMock.login + '1' })
         .set('accept', '*/*')
         .set('Content-Type', 'application/json')
         .expect(HttpStatus.CREATED)
@@ -86,7 +91,6 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should not register when using already taken email', async () => {
-      await setupUser(userRepository);
       await request(app.getHttpServer())
         .post(`${URL}/register`)
         .send(createUserDTOMock)
@@ -116,7 +120,6 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should not login inactive user', async () => {
-      await setupUser(userRepository);
       await request(app.getHttpServer())
         .post(`${URL}/login`)
         .send({ login: createUserDTOMock.login, password: createUserDTOMock.password })
@@ -175,8 +178,8 @@ describe('AuthController (e2e)', () => {
 
   describe('/GET auth/activate/{verificationCode}', () => {
     it('should activate an user account with valid verification code', async () => {
-      const user = await setupUser(userRepository);
-      const key = user.verificationKey;
+      const user = await userRepository.findOne({ where: { login: createUserDTOMock.login } });
+      const key = user!.verificationKey;
       await request(app.getHttpServer())
         .get(`${URL}/activate/${key}`)
         .set('accept', '*/*')
@@ -187,25 +190,17 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should not activate when wrong verification code', async () => {
-      await setupUser(userRepository);
       await request(app.getHttpServer()).get(`${URL}/activate/bad`).set('accept', '*/*').expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('should not activate when no user', async () => {
-      await request(app.getHttpServer())
-        .get(`${URL}/activate/${createUserDTOMock.verificationKey}`)
-        .set('accept', '*/*')
-        .expect(HttpStatus.UNAUTHORIZED);
+      await request(app.getHttpServer()).get(`${URL}/activate/${createUserDTOMock.verificationKey}`).set('accept', '*/*').expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('should not activate when already active', async () => {
       const user = await setupActiveUser(userRepository);
       const key = user.verificationKey;
-      await request(app.getHttpServer())
-        .get(`${URL}/activate/${key}`)
-        .set('accept', '*/*')
-        .send({ verificationCode: key })
-        .expect(HttpStatus.BAD_REQUEST);
+      await request(app.getHttpServer()).get(`${URL}/activate/${key}`).set('accept', '*/*').send({ verificationCode: key }).expect(HttpStatus.BAD_REQUEST);
     });
   });
 });
