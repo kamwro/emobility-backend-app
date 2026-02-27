@@ -1,6 +1,6 @@
 export const createUserDTOMock = {
   login: 'test@test.test',
-  password: 'T3s!%$#',
+  password: 'T3sdT%$#',
   firstName: 'test',
   lastName: 'test',
   birthday: '2000-01-01',

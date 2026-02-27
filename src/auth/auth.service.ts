@@ -120,7 +120,7 @@ export class AuthService {
   }
 
   async getVerificationToken(userLogin: string): Promise<string> {
-    const verificationToken = this.#jwtService.signAsync(
+    const verificationToken = await this.#jwtService.signAsync(
       { userLogin },
       {
         secret: this.#configService.get('VERIFICATION_JWT_SECRET'),

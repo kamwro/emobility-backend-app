@@ -17,6 +17,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transformOptions: { enableImplicitConversion: true },
       transform: true,
     }),
   );
@@ -28,6 +29,5 @@ async function bootstrap() {
   const port: number = Number(configService.get('NEST_API_PORT'));
 
   await app.listen(port);
-  
 }
 bootstrap();

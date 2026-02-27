@@ -46,7 +46,7 @@ export class UsersService {
 
   async activate(verificationCode: string): Promise<Message> {
     const user = await this.#usersRepository.findOneBy({ verificationKey: verificationCode });
-    if (!user || user.verificationKey !== verificationCode) {
+    if (!user) {
       throw new UnauthorizedException('access denied');
     }
 
