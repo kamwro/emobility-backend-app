@@ -120,14 +120,13 @@ export class AuthService {
   }
 
   async getVerificationToken(userLogin: string): Promise<string> {
-    const verificationToken = await this.#jwtService.signAsync(
+    return await this.#jwtService.signAsync(
       { userLogin },
       {
         secret: this.#configService.get('VERIFICATION_JWT_SECRET'),
         expiresIn: this.#configService.get('VERIFICATION_TOKEN_EXPIRES_IN_SEC'),
       },
     );
-    return verificationToken;
   }
 
   async sendConfirmationLink(userLogin: string): Promise<Message> {
@@ -144,7 +143,8 @@ export class AuthService {
   async activateUser(verificationCode: string): Promise<Message | null> {
     try {
       await this.#jwtService.verifyAsync(verificationCode, { secret: this.#configService.get('VERIFICATION_JWT_SECRET') });
-    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
       throw new UnauthorizedException('access denied');
     }
     return this.#usersService.activate(verificationCode);

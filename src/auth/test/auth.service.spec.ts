@@ -60,6 +60,7 @@ describe('AuthService', () => {
 
   describe('registerUser', () => {
     it('should register an user', async () => {
+      jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(null);
       await service.registerUser(createUserDTOMock).then((result) => {
         expect(result.info).toBeTruthy();
         expect(result.message).toBe('activation link has been sent');
@@ -82,7 +83,7 @@ describe('AuthService', () => {
 
   describe('signIn', () => {
     it('should sign in an active user', async () => {
-      let user = new User();
+      const user = new User();
       user.login = userSignInDTOMock.login;
       user.isActive = true;
       const plainPassword = userSignInDTOMock.password;
@@ -115,7 +116,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an BadRequestException when user is already signed in', async () => {
-      let user = new User();
+      const user = new User();
       user.refreshToken = tokenMock;
       user.isActive = true;
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
@@ -127,7 +128,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException when password is not valid', async () => {
-      let user = new User();
+      const user = new User();
       user.password = '123';
       user.isActive = true;
       jest.spyOn(usersService, 'findOneByLogin').mockResolvedValueOnce(user);
@@ -141,7 +142,7 @@ describe('AuthService', () => {
 
   describe('signOut', () => {
     it('should sign out an user', async () => {
-      let user = new User();
+      const user = new User();
       user.refreshToken = tokenMock;
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.signOut(1).then((result) => expect(result.message).toBe('signed out'));
@@ -150,7 +151,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an NotFoundException when user is not signed in', async () => {
-      let user = new User();
+      const user = new User();
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.signOut(1).catch((e) => {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -162,7 +163,7 @@ describe('AuthService', () => {
 
   describe('refreshTokens', () => {
     it('should refresh tokens', async () => {
-      let user = new User();
+      const user = new User();
       user.isActive = true;
       user.refreshToken = await hash(tokenMock, 10);
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
@@ -193,7 +194,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException when there is no refresh token active', async () => {
-      let user = new User();
+      const user = new User();
       user.isActive = true;
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);
       await service.refreshTokens(1, tokenMock).catch((e) => {
@@ -204,7 +205,7 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException when provided token does not match with the real one', async () => {
-      let user = new User();
+      const user = new User();
       user.isActive = true;
       user.refreshToken = tokenMock;
       jest.spyOn(usersService, 'findOneById').mockResolvedValueOnce(user);

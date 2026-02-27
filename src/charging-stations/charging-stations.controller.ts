@@ -20,7 +20,7 @@ export class ChargingStationsController {
     @Query()
     query: GetStationsDto,
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const stations = await this.#chargingStationsService.findAllBy({ ...query });
     if (!stations) {
       return res.status(HttpStatus.BAD_REQUEST);

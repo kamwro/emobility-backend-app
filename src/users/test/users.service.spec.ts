@@ -105,7 +105,8 @@ describe('UsersService', () => {
 
     it('should throw UnauthorizedException when trying to remove a non-existing user ', async () => {
       await service.remove(1).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -124,7 +125,8 @@ describe('UsersService', () => {
     it('should throw UnauthorizedException when there is no user', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.activate(tokenMock).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -133,7 +135,8 @@ describe('UsersService', () => {
       const user = new User();
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -144,7 +147,8 @@ describe('UsersService', () => {
       user.verificationKey = tokenMock;
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.activate(tokenMock).catch((e) => {
-        (expect(e).toBeInstanceOf(BadRequestException), expect(e.message).toBe('user already active'));
+        expect(e).toBeInstanceOf(BadRequestException);
+        expect(e.message).toBe('user already active');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -165,7 +169,8 @@ describe('UsersService', () => {
 
     it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
       await service.updateRefreshToken(2, tokenMock).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -181,7 +186,8 @@ describe('UsersService', () => {
     it('should throw UnauthorizedException when there is no user', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.updateVerificationKey('test', tokenMock).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -202,7 +208,8 @@ describe('UsersService', () => {
     it('should throw UnauthorizedException when there is no user with that provided id', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.updatePassword(1, createUserDTOMock.password, createUserDTOMock.password).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -212,7 +219,8 @@ describe('UsersService', () => {
       user.password = await hash(createUserDTOMock.password, 10);
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(user);
       await service.updatePassword(1, '123', createUserDTOMock.password).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('invalid password'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('invalid password');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });
@@ -228,7 +236,8 @@ describe('UsersService', () => {
     it('should throw a UnauthorizedException when there is no user with that provided id', async () => {
       jest.spyOn(usersRepository, 'findOneBy').mockResolvedValueOnce(null);
       await service.updateInfo(1, changeInfoDTOMock).catch((e) => {
-        (expect(e).toBeInstanceOf(UnauthorizedException), expect(e.message).toBe('access denied'));
+        expect(e).toBeInstanceOf(UnauthorizedException);
+        expect(e.message).toBe('access denied');
       });
       expect(usersRepository.findOneBy).toHaveBeenCalled();
     });

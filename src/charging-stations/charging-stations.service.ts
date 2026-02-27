@@ -31,7 +31,6 @@ export class ChargingStationsService {
   }
 
   async findAllBy(stationDto: GetStationsDto): Promise<ChargingStation[]> {
-    let stations: ChargingStation[];
     let tableNameForSearch = 'charging_stations';
     let tableNameForSort = 'charging_stations';
 
@@ -45,7 +44,7 @@ export class ChargingStationsService {
       tableNameForSort = 'charging_station_types';
     }
 
-    stations = await this.#chargingStationRepository
+    return await this.#chargingStationRepository
       .createQueryBuilder(':charging_stations')
       .leftJoinAndSelect('charging_stations.type', 'charging_station_types')
       .where(`${tableNameForSearch}.${stationDto.searchProperty} = :searchCriteria`, {
@@ -54,10 +53,9 @@ export class ChargingStationsService {
       .orderBy(`${tableNameForSort}.${stationDto.sortProperty}`, `${stationDto.sortDirection}`)
       .limit(stationDto.limit)
       .getMany();
-    return stations;
   }
 
-  async validateProperties(data: GetStationsDto) {
+  async validateProperties(data: GetStationsDto): Promise<void> {
     if (!(data.searchProperty in ChargingStationsPropertiesWithRelations) || !(data.sortProperty in ChargingStationsPropertiesWithRelations)) {
       throw new BadRequestException('invalid property');
     }

@@ -14,7 +14,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDTO } from '../users/dtos/create-user.dto';
 import { UserSignInDTO } from '../users/dtos/user-sign-in.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetCurrentUser } from '../utils/decorators/get-current-user.decorator';
+import { GET_CURRENT_USER } from '../utils/decorators/get-current-user.decorator';
 import { Response } from 'express';
 
 @Controller('auth')
@@ -59,7 +59,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Successfully signed out' })
   @ApiUnauthorizedResponse({ description: 'Access denied' })
   @ApiNotFoundResponse({ description: 'User is not signed in' })
-  async signOut(@GetCurrentUser('sub') userId: number, @Res() res: Response): Promise<Response> {
+  async signOut(@GET_CURRENT_USER('sub') userId: number, @Res() res: Response): Promise<Response> {
     const message = await this.#authService.signOut(userId);
     if (!message) {
       return res.status(HttpStatus.UNAUTHORIZED);
@@ -74,7 +74,7 @@ export class AuthController {
   @Get('refresh')
   @ApiOkResponse({ description: 'Successfully refreshed the session' })
   @ApiUnauthorizedResponse({ description: 'Access denied' })
-  async refresh(@GetCurrentUser('sub') userId: number, @GetCurrentUser('refreshToken') refreshToken: string, @Res() res: Response): Promise<Response> {
+  async refresh(@GET_CURRENT_USER('sub') userId: number, @GET_CURRENT_USER('refreshToken') refreshToken: string, @Res() res: Response): Promise<Response> {
     const tokens = await this.#authService.refreshTokens(userId, refreshToken);
     if (!tokens) {
       return res.status(HttpStatus.UNAUTHORIZED);

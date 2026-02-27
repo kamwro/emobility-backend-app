@@ -14,7 +14,7 @@ describe('AuthController (e2e)', () => {
   let userRepository: Repository<User>;
   const URL = '/auth';
 
-  const getTokens = async () => {
+  const getTokens = async (): Promise<{ accessToken: string; refreshToken: string }> => {
     let tokens = { accessToken: 'null', refreshToken: 'null' };
     await setupActiveUser(userRepository);
     await request(app.getHttpServer())

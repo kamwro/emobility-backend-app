@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { HttpStatus } from '@nestjs/common';
 import { authServiceMock } from './mocks/auth.service.mock';
+import { responseMock } from '../../utils/shared-mocks/response.mock';
+import { createUserDTOMock } from '../../utils/shared-mocks/create-user.dto.mock';
+import { tokenMock } from '../../utils/shared-mocks/token.mock';
 
 describe('MyAccountController', () => {
   let controller: AuthController;
@@ -27,6 +31,10 @@ describe('MyAccountController', () => {
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -61,20 +69,25 @@ describe('MyAccountController', () => {
 
   describe('PATCH /auth/resend-confirmation-link (resendActivationLink)', () => {
     it('should send link HTTP status OK', async () => {
-      //
-      expect(authService.sendConfirmationLink).toHaveBeenCalled();
+      await controller.resendActivationLink(createUserDTOMock.login, responseMock);
+      expect(authService.sendConfirmationLink).toHaveBeenCalledWith(createUserDTOMock.login);
+      expect(responseMock.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(responseMock.json).toHaveBeenCalled();
     });
   });
 
   describe('GET /auth/activate/:verificationCode (activateMyAccount)', () => {
     it('should activate an account with HTTP status OK', async () => {
-      //
-      expect(authService.activateUser).toHaveBeenCalled();
+      await controller.activateMyAccount(tokenMock, responseMock);
+      expect(authService.activateUser).toHaveBeenCalledWith(tokenMock);
+      expect(responseMock.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(responseMock.json).toHaveBeenCalled();
     });
     it('should end with HTTP status UNAUTHORIZED when unauthorized', async () => {
       jest.spyOn(authService, 'activateUser').mockResolvedValueOnce(null);
-      //
-      expect(authService.activateUser).toHaveBeenCalled();
+      await controller.activateMyAccount(tokenMock, responseMock);
+      expect(authService.activateUser).toHaveBeenCalledWith(tokenMock);
+      expect(responseMock.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     });
   });
 });

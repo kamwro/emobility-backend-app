@@ -37,8 +37,8 @@ export class Initial1703130028707 implements MigrationInterface {
     }
 
     // generate 1000 records for charging stations
-    let queries = SqlReader.readSqlFile(path.join(__dirname, 'charging-stations.sql'));
-    for (let query of queries) {
+    const queries = SqlReader.readSqlFile(path.join(__dirname, 'charging-stations.sql'));
+    for (const query of queries) {
       await queryRunner.query(`${query}`);
     }
   }

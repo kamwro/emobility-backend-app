@@ -1,8 +1,8 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { hash, compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import { Message } from '../utils/types/message.type';
 import { ChangeInfoDTO } from '../my-account/dtos/change-info.dto';
@@ -93,8 +93,7 @@ export class UsersService {
       throw new UnauthorizedException('invalid password');
     }
 
-    const newHashedPassword = await hash(newPlainPassword, 10);
-    user.password = newHashedPassword;
+    user.password = await hash(newPlainPassword, 10);
 
     await this.#usersRepository.save(user);
 
@@ -102,15 +101,18 @@ export class UsersService {
   }
 
   async updateInfo(userId: number, infoToChange: ChangeInfoDTO): Promise<Message | null> {
-    let user = await this.#usersRepository.findOneBy({ id: userId });
+    const user = await this.#usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new UnauthorizedException('access denied');
     }
 
-    let info: keyof ChangeInfoDTO;
-    for (info in infoToChange) {
-      user[info] = infoToChange[info];
-    }
+    user.firstName = infoToChange.firstName;
+    user.lastName = infoToChange.lastName;
+    user.country = infoToChange.country;
+    user.city = infoToChange.city;
+    user.postalCode = infoToChange.postalCode;
+    user.street = infoToChange.street;
+    user.buildingNumber = infoToChange.buildingNumber;
 
     await this.#usersRepository.save(user);
 

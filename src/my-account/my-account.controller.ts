@@ -1,6 +1,6 @@
 import { Controller, Get, Patch, Delete, Res, Body, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { GetCurrentUser } from '../utils/decorators/get-current-user.decorator';
+import { GET_CURRENT_USER } from '../utils/decorators/get-current-user.decorator';
 import { Response } from 'express';
 import { UsersService } from '../users/users.service';
 import { UseGuards } from '@nestjs/common';
@@ -25,7 +25,7 @@ export class MyAccountController {
   @Get('')
   @ApiOkResponse({ description: 'Successfully got an account info' })
   @ApiUnauthorizedResponse({ description: 'Access denied' })
-  async getMyInfo(@GetCurrentUser('sub') userId: number, @Res() res: Response): Promise<Response> {
+  async getMyInfo(@GET_CURRENT_USER('sub') userId: number, @Res() res: Response): Promise<Response> {
     const user = await this.#usersService.findOneById(userId);
     if (!user) {
       return res.status(HttpStatus.UNAUTHORIZED);
@@ -47,7 +47,7 @@ export class MyAccountController {
   @Patch('change-info')
   @ApiOkResponse({ description: 'Successfully changed some personal info' })
   @ApiUnauthorizedResponse({ description: 'Access denied' })
-  async changeMyInfo(@Body() body: ChangeInfoDTO, @GetCurrentUser('sub') userId: number, @GetCurrentUser('login') userLogin: string, @Res() res: Response): Promise<Response> {
+  async changeMyInfo(@Body() body: ChangeInfoDTO, @GET_CURRENT_USER('sub') userId: number, @GET_CURRENT_USER('login') userLogin: string, @Res() res: Response): Promise<Response> {
     const message = await this.#usersService.updateInfo(userId, body);
     if (!message) {
       return res.status(HttpStatus.UNAUTHORIZED);
@@ -68,8 +68,8 @@ export class MyAccountController {
   @ApiUnauthorizedResponse({ description: 'Access denied' })
   async changeMyPassword(
     @Body() body: ChangePasswordDTO,
-    @GetCurrentUser('sub') userId: number,
-    @GetCurrentUser('login') userLogin: string,
+    @GET_CURRENT_USER('sub') userId: number,
+    @GET_CURRENT_USER('login') userLogin: string,
     @Res() res: Response,
   ): Promise<Response> {
     const message = await this.#usersService.updatePassword(userId, body.oldPassword, body.newPassword);
@@ -90,7 +90,7 @@ export class MyAccountController {
   @Delete('delete')
   @ApiOkResponse({ description: 'Successfully deleted an account' })
   @ApiUnauthorizedResponse({ description: 'Access denied' })
-  async deleteMyAccount(@GetCurrentUser('sub') userId: number, @GetCurrentUser('login') userLogin: string, @Res() res: Response): Promise<Response> {
+  async deleteMyAccount(@GET_CURRENT_USER('sub') userId: number, @GET_CURRENT_USER('login') userLogin: string, @Res() res: Response): Promise<Response> {
     const message = await this.#usersService.remove(userId);
     if (!message) {
       return res.status(HttpStatus.UNAUTHORIZED);

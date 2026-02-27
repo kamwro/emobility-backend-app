@@ -12,7 +12,7 @@ const jwtService = new JwtService();
 
 export const dbConfig = { type: 'sqlite', database: ':memory:', entities: [User], synchronize: true, dropSchema: true };
 
-export const setupUser = async (repo: Repository<User>) => {
+export const setupUser = async (repo: Repository<User>): Promise<User> => {
   const password = createUserDTOMock.password;
   const hashedPassword = await hash(password, 10);
   const verificationKey = await jwtService.signAsync(
@@ -25,8 +25,8 @@ export const setupUser = async (repo: Repository<User>) => {
   return await repo.save(user);
 };
 
-export const setupActiveUser = async (repo: Repository<User>) => {
-  let user = await repo.findOne({ where: { login: createUserDTOMock.login } });
+export const setupActiveUser = async (repo: Repository<User>): Promise<User> => {
+  const user = await repo.findOne({ where: { login: createUserDTOMock.login } });
   if (!user) {
     throw new NotFoundException();
   }
