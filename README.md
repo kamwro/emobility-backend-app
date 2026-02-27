@@ -4,11 +4,11 @@ E-mobility backend app created with [NestJS](https://nestjs.com/) and [Postgres]
 
 ## Prerequisites
 
-- [NodeJS](https://nodejs.org/en), LTS or Current version,
+- [Node.js](https://nodejs.org/en), LTS or Current version,
 - [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/),
 - [Postgres](https://www.postgresql.org/download/windows/) if you want to manage your database,
 - Git,
-- have set up an email address that will enable you sending emails through SMTP server
+- have set up an email address that will enable you to send emails through SMTP server
 
 ## Cloning The Repository
 
@@ -22,9 +22,9 @@ Before you dive in, you need to set up project environmental variables.
 
 1. Open the project directory
 2. Create an **_.env_** file in the root directory
-3. Paste below content with your custom envs:
+3. Paste the below content with your custom envs:
 
-```typescript
+```code
 # Postgres
 POSTGRES_USER=user
 POSTGRES_PASSWORD=secret
@@ -69,7 +69,7 @@ THROTTLE_TTL_LONG = 60000
 THROTTLE_LIMIT_LONG = 100
 ```
 
-You should also change the create-db.sql file accordingly if you changed database name.
+You should also change the create-db.sql file accordingly if you changed the database name.
 
 ## Running The App In Production Stage
 
@@ -81,7 +81,7 @@ You should also change the create-db.sql file accordingly if you changed databas
 $ docker-compose up --build
 ```
 
-4. Go to http://localhost:3000/api and use the app
+Go to http://localhost:3000/api and use the app
 
 ## Documentation
 
