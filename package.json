@@ -22,7 +22,9 @@
     "migration:run": "npm run typeorm migration:run -- -d ./src/migrations-typeorm-config.ts",
     "migration:generate": "npm run typeorm -- -d ./src/migrations-typeorm-config.ts migration:generate ./src/migrations/generated",
     "migration:create": "npm run typeorm -- migration:create ./src/migrations/created",
-    "migration:revert": "npm run typeorm -- -d ./src/migrations-typeorm-config.ts migration:revert"
+    "migration:revert": "npm run typeorm -- -d ./src/migrations-typeorm-config.ts migration:revert",
+    "deps:check:major": "ncu --target latest",
+    "deps:update:minor": "ncu -u --target minor && npm install"
   },
   "repository": {
     "type": "git",
@@ -92,7 +94,8 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "npm-check-updates": "^19.2.0"
   },
   "jest": {
     "moduleFileExtensions": [
